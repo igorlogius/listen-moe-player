@@ -1,3 +1,5 @@
+/* global browser*/
+
 /* Shortcut for browser.storage.local api */
 var storage = browser.storage.local;
 
@@ -63,9 +65,11 @@ browser.storage.onChanged.addListener(changes => {
 
 var radio = {
 	player: createElement('audio', {
-		id: 'listen-moe',
+		/*id: 'listen-moe',*/
 		autoplay: true
 	}),
+	data: {},
+	token: null,
 	enable() {
 		//console.debug('enable', radioType[storageItems.radioType].stream);
 		return this.player.setAttribute('src', radioType[storageItems.radioType].stream);
@@ -96,11 +100,15 @@ var radio = {
 	get getVol() {
 		return this.player.volume * 100;
 	},
-	data: {},
-	token: null,
+	get getData() {
+		return this.data;
+	},
+	get getToken() {
+		return this.token;
+	},
 	socket: {
 		ws: null,
-		event: new Event('songChanged'),
+		//event: new Event('songChanged'),
 		data: { lastSongID: -1 },
 		init() {
 
@@ -140,14 +148,22 @@ var radio = {
 				}
 
 				if (response.op === 1) {
+					console.debug('ws onmesssage', response.t);
 
 					if (response.t !== 'TRACK_UPDATE' && response.t !== 'TRACK_UPDATE_REQUEST') return;
 
 					radio.data = response.d;
 
-					//radio.data.song.favorite = await radio.checkFavorite(radio.data.song.id);
+					radio.data.song.favorite = await radio.checkFavorite(radio.data.song.id);
 
-					radio.player.dispatchEvent(radio.socket.event);
+					//radio.player.dispatchEvent(radio.socket.event);
+
+					// try to send the songChange event 
+					try {
+						await browser.runtime.sendMessage({cmd: 'songChanged'});
+					}catch(e){
+					 	// noop
+					}
 
 					if (radio.data.song.albums.length && radio.data.song.albums[0].image) {
 
@@ -164,7 +180,6 @@ var radio = {
 					} else {
 
 						radio.data.song.coverData = null;
-
 					}
 
 					if (radio.data.song.id !== radio.socket.data.lastSongID) {
@@ -177,6 +192,7 @@ var radio = {
 
 					}
 
+
 				}
 
 			};
@@ -188,7 +204,6 @@ var radio = {
 			}, heartbeat);
 		}
 	},
-	/*
 	toggleFavorite() {
 		return new Promise((resolve, reject) => {
 			if (!radio.token) return;
@@ -215,10 +230,16 @@ var radio = {
 				})
 			})
 				.then(res => res.json())
-				.then(data => {
+				.then(async data => {
 					if (data.data) {
 						radio.data.song.favorite = !radio.data.song.favorite;
-						radio.player.dispatchEvent(radio.socket.event);
+						//radio.player.dispatchEvent(radio.socket.event);
+						//
+					try {
+						await browser.runtime.sendMessage({cmd: 'songChanged'});
+					}catch(e){
+						//noop
+					}
 						resolve(radio.data.song.favorite);
 					} else if (data.errors) {
 						console.error(data.errors);
@@ -231,8 +252,6 @@ var radio = {
 
 		});
 	},
-	*/
-	/*
 	checkFavorite(id) {
 		return new Promise(resolve => {
 			if (!radio.token) {
@@ -274,24 +293,21 @@ var radio = {
 				});
 		});
 	}
-	*/
 };
 
-browser.runtime.onMessage.addListener( (data, sender) => {
-	//console.debug('1 onMessage', data);
-	//console.debug('2 onMessage', data.cmd);
+browser.runtime.onMessage.addListener( (data /*, sender*/) => {
+	console.debug('onMessage', data);
+	let ret;
 	if(typeof radio[data.cmd] === 'function'){
 		ret = radio[data.cmd](data['arg']);
 	}else{
 		ret = radio[data.cmd];
 	}
-	//console.debug('3 onMessage', ret);
 	return Promise.resolve(ret);
 });
 
 /* Get token */
 
-/*
 browser.cookies.onChanged.addListener(details => {
 	if (details.cookie.name === 'token') {
 		if (details.removed) {
@@ -308,7 +324,6 @@ browser.cookies.get({
 }, data => {
 	radio.token = data ? data.value : null;
 });
-*/
 
 /* Keyboard Shortcuts */
 
@@ -352,7 +367,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
 }, ['blocking', 'requestHeaders']);
 */
 
-function createNotification(title, message, altText, sticky, showFavoriteButton) {
+function createNotification(title, message, altText) {
 
 	if (!title || !message) return;
 
@@ -402,3 +417,4 @@ function createElement(tag, attrs, styles) {
 	}
 	return element;
 }
+

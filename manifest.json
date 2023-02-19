@@ -15,7 +15,10 @@
 	"permissions": [
 		"*://*.listen.moe/*",
 		"storage",
-		"notifications"
+		"notifications",
+		"cookies",
+		"webRequest",
+		"webRequestBlocking"
 	],
 	"version": "1.0.0"
 }

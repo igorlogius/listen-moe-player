@@ -232,16 +232,13 @@ svg {
 
 /* Favorite */
 
-/*
 #favorite-toggle svg.active :not(.icon-alt),
 #favorite-toggle svg:not(.active) .icon-alt {
 	display: none;
 }
-*/
 
 /* Login */
 
-/*
 #favorite-toggle.login:before {
 	content: '';
 	position: absolute;
@@ -268,7 +265,6 @@ svg {
 #favorite-toggle.login:hover:before {
 	display: initial;
 }
-*/
 
 /* Radio Type Toggle */
 

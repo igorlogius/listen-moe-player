@@ -1,7 +1,15 @@
+/* global browser */
 
-function setInfo() {
+async function setInfo() {
+	console.debug('setInfo');
 
-	let { data } = radio;
+	let data = await browser.runtime.sendMessage({ cmd: 'getData'});
+
+	console.debug('data',data);
+
+	if(typeof data === 'undefined'){
+		return;
+	}
 
 	/* Sets Current Listners */
 	document.querySelector('#listeners span').innerText = typeof data.listeners !== 'undefined' ? data.listeners : 'N/A';
@@ -16,11 +24,10 @@ function setInfo() {
 
 		let artist = data.song.artists[index];
 
-		let artistLink = background.createElement('a', {
-			class: 'artist',
-			href: `https://listen.moe/artists/${artist.id}`,
-			target: '_blank'
-		});
+		let artistLink = document.createElement('a');
+		artistLink.classList.add('artist');
+		artistLink.href= `https://listen.moe/artists/${artist.id}`;
+		artistLink.target = '_blank';
 
 		const artistName = artist.nameRomaji || artist.name;
 
@@ -40,6 +47,7 @@ function setInfo() {
 	npElement.appendChild(document.createTextNode(data.song.title || 'No data'));
 
 	/* Sets Requester Info */
+	/**/
 	/*
 	if (data.event) {
 
@@ -50,7 +58,7 @@ function setInfo() {
 		document.querySelector('#now-playing-event span').innerText = data.event.name;
 		document.querySelector('#now-playing-event').style.display = 'block';
 
-	} else {
+	} else {*/
 
 		document.querySelector('#now-playing-event span').innerText = '';
 		document.querySelector('#now-playing-event').style.display = 'none';
@@ -65,11 +73,12 @@ function setInfo() {
 			document.querySelector('#now-playing-request').style.display = 'none';
 		}
 
-	}
-	*/
+	//}
+	/**/
 
-	/*
-	if (radio.token) {
+	const token = await browser.runtime.sendMessage({cmd: 'getToken'});
+	console.debug('token', token);
+	if (token !== null) {
 
 		document.querySelector('#favorite-toggle').classList.remove('login');
 
@@ -85,12 +94,10 @@ function setInfo() {
 		document.querySelector('#favorite-toggle svg').classList.remove('active');
 
 	}
-	*/
 
 }
 
 /* Does Scrolling Text */
-/*
 let timeout = setTimeout(autoScroll, 1000);
 
 function getElWidth(el) {
@@ -98,9 +105,7 @@ function getElWidth(el) {
 	let elementCS = getComputedStyle(el);
 	return el.offsetWidth - (parseFloat(elementCS.paddingLeft) + parseFloat(elementCS.paddingRight));
 }
-*/
 
-/*
 function autoScroll() {
 	let time = (Math.floor(document.querySelector('#now-playing-text span').innerText.length) / 10) * 500;
 	if (getElWidth('#now-playing-text span') > getElWidth('#now-playing-text')) {
@@ -117,9 +122,7 @@ function autoScroll() {
 		}, time + 3000);
 	}
 }
-*/
 
-/*
 document.querySelector('#now-playing-text').addEventListener('mouseenter', () => {
 	let time = (Math.floor(document.querySelector('#now-playing-text span').innerText.length) / 10) * 500;
 	let offset = (getElWidth('#now-playing-text span') + 1) - getElWidth('#now-playing-text');
@@ -129,9 +132,7 @@ document.querySelector('#now-playing-text').addEventListener('mouseenter', () =>
 		document.querySelector('#now-playing-text span').style.marginLeft = `${-offset}px`;
 	}
 });
-*/
 
-/*
 document.querySelector('#now-playing-text').addEventListener('mouseleave', () => {
 	let time = (Math.floor(document.querySelector('#now-playing-text span').innerText.length) / 10) * 500;
 	document.querySelector('#now-playing-text span').style.transition = `margin ${time / 4}ms ease-in-out`;
@@ -140,14 +141,11 @@ document.querySelector('#now-playing-text').addEventListener('mouseleave', () =>
 		timeout = setTimeout(autoScroll, 10000);
 	}, time / 4);
 });
-*/
 
 /* Copy Artist and Song Title to Clipboard */
-/*
 document.querySelector('#now-playing-text span').addEventListener('click', function() {
 	window.getSelection().selectAllChildren(this);
 });
-*/
 
 (async () => {
 
@@ -178,31 +176,24 @@ if (await browser.runtime.sendMessage({cmd: 'isPlaying'})) {
 /* Enable/Disable Player */
 document.querySelector('#radio-toggle svg').addEventListener('click', async function() {
 	const ret = await browser.runtime.sendMessage({cmd: 'isPlaying'})
-	console.debug('blubbber', ret);
+	console.debug('radio-toggle', ret);
 	if(ret){
-	console.debug('blubbber ----------------------- ');
-	//if (radio.isPlaying) {
 		this.classList.remove('active');
-		//radio.disable();
 		await browser.runtime.sendMessage({ cmd: 'disable'});
 	} else {
-	console.debug('blubbber ----------------------- 2');
 		this.classList.add('active');
-		//radio.enable();
 		await browser.runtime.sendMessage({ cmd: 'enable'});
 	}
 });
 
 /* Favorites Button */
-/*
-document.querySelector('#favorite-toggle').addEventListener('click', function() {
+document.querySelector('#favorite-toggle').addEventListener('click', async function() {
 	if (this.classList.contains('login')) {
 		window.open('https://listen.moe', '_blank');
 	} else {
-		radio.toggleFavorite().catch(console.error);
+		await browser.runtime.sendMessage({ cmd: 'toggleFavorite'});
 	}
 });
-*/
 
 /* Toggles Radio Type */
 document.querySelector('#radio-type-toggle').addEventListener('click', async function() {
@@ -233,6 +224,13 @@ document.querySelector('#settings').addEventListener('click', () => {
 
 //radio.player.addEventListener('songChanged', setInfo);
 
-//setInfo();
+browser.runtime.onMessage.addListener( async (data/*, sender*/) => {
+	console.debug('onMessage',data);
+	if(data.cmd === 'songChanged'){
+		setInfo();
+	}
+});
+
+setInfo();
 //
 })();
