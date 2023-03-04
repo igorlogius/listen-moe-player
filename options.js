@@ -1,16 +1,16 @@
-chrome.storage.local.get({
+/* global browser */
+
+browser.storage.local.get({
 	enableAutoplay: false,
-	enableNotifications: true,
-	enableEventNotifications: true
+	enableNotifications: true
 }, (items) => {
 	document.getElementById('enableAutoplay').checked = items.enableAutoplay;
 	document.getElementById('enableNotifications').checked = items.enableNotifications;
-	document.getElementById('enableEventNotifications').checked = items.enableEventNotifications;
 });
 
 document.querySelectorAll('input[type="checkbox"]').forEach((element) => {
 	element.addEventListener('change', function() {
-		chrome.storage.local.set({ [this.id]: this.checked });
+		browser.storage.local.set({ [this.id]: this.checked });
 	});	
 });
 

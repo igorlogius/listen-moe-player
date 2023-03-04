@@ -229,6 +229,8 @@ browser.runtime.onMessage.addListener( async (data/*, sender*/) => {
 	if(data.cmd === 'songChanged'){
 		setInfo();
 	}
+	if(data.cmd === 'favSong'){
+	}
 });
 
 setInfo();
