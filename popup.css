@@ -1,4 +1,3 @@
-/*@import url(https://fonts.googleapis.com/css?family=Nunito:300,400,600,700);*/
 
 :root {
 	--jpop-color: #ff015b;
@@ -24,8 +23,6 @@ html, body {
 	padding: 0;
 	color: #c7ccd8;
 	font-size: 0.88rem;
-	/*font-family: 'Nunito', sans-serif;*/
-	/* font: 400 12px 'Nunito', sans-serif; */
 }
 
 body {
@@ -44,7 +41,7 @@ a:hover {
 }
 
 svg {
-    fill: rgb(199, 204, 216);
+	fill: rgb(199, 204, 216);
 	cursor: auto;
 }
 
@@ -70,7 +67,6 @@ svg {
 	background-position-x: -3px;
 	background-size: cover;
 	height: 145px;
-	/* height: 100%; */
 	width: 110px;
 	bottom: 0px;
 	left: 5px;
@@ -82,7 +78,6 @@ svg {
 	display: flex;
 	justify-content: center;
 	position: relative;
-	/* height: 145px; */
 	height: 100%;
 	width: 375px;
 }
@@ -253,8 +248,8 @@ svg {
 #favorite-toggle.login:after {
 	content: 'Click to Login';
 	position: absolute;
-    margin-top: -40px;
-    margin-left: -55px;
+	margin-top: -40px;
+    	margin-left: -55px;
 	background-color: var(--jpop-color2);
 	padding: 5px;
 	border-radius: 3px;
@@ -271,9 +266,9 @@ svg {
 #radio-type-toggle {
 	position: absolute;
 	left: 5px;
-    bottom: 5px;
-    cursor: pointer;
-    font-weight: 600;
+	bottom: 5px;
+	cursor: pointer;
+	font-weight: 600;
 }
 
 /* Settings */
