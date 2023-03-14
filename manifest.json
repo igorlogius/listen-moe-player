@@ -7,19 +7,20 @@
 		"default_popup": "popup.html"
 	},
 	"commands": {
-		"toggle_radio": { "description": "Toggle Radio" },
+		"save_playing_info": { "description": "Save Now Playing Info" },
 		"show_playing": { "description": "Display Now Playing" },
-		"vol_up": { "description": "Raise Radio Volume" },
-		"vol_down": { "description": "Lower Radio Volume" },
 		"toggle_fav": { "description": "Favorit Now Playing" },
-		"save_playing_info": { "description": "Save Now Playing Info" }
+		"toggle_radio": { "description": "Toggle Radio" },
+		"vol_down": { "description": "Lower Radio Volume" },
+		"vol_up": { "description": "Raise Radio Volume" }
 	},
+  	"default_area": "navbar",
 	"description": "Listen to https://listen.moe",
 	"icons": {
 		"128": "icon.png"
 	},
 	"manifest_version": 2,
-	"name": "listen.moe-player",
+	"name": "listen-moe-2023",
 	"options_ui": {
 		"page": "options.html"
 	},

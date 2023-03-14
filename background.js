@@ -307,7 +307,6 @@ browser.cookies.get(
 /* Keyboard Shortcuts */
 
 browser.commands.onCommand.addListener((command) => {
-  let link;
   switch (command) {
     case "toggle_radio":
       radio.toggle();
@@ -349,19 +348,22 @@ browser.commands.onCommand.addListener((command) => {
       }
       break;
     case "save_playing_info":
-      link = document.createElement("a");
-      link.setAttribute("target", "_blank");
-      link.setAttribute("download", radio.data.song.title + ".info");
-      link.setAttribute(
-        "href",
-        "data:text/plain;charset=utf-8,artists: " +
-          radio.data.song.artists.map((a) => a.nameRomaji || a.name).join(", ")
-      );
-      //document.body.append(link);
-      setTimeout(() => {
-        link.remove();
-      }, 1000);
-      link.click();
+      (() => {
+        let link = document.createElement("a");
+        link.setAttribute("target", "_blank");
+        link.setAttribute("download", radio.data.song.title + ".info");
+        link.setAttribute(
+          "href",
+          "data:text/plain;charset=utf-8,artists: " +
+            radio.data.song.artists
+              .map((a) => a.nameRomaji || a.name)
+              .join(", ") + '\n' + 'title:' + radio.data.song.title
+        );
+        setTimeout(() => {
+          link.remove();
+        }, 3000);
+        link.click();
+      })();
       break;
     default:
       break;
