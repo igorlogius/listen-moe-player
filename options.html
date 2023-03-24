@@ -1,9 +1,46 @@
 <!DOCTYPE html>
 <head>
-	<meta charset="utf-8">
+  <meta charset="utf-8" />
+<style>
+.background {
+	border:5px solid red;
+	background-image: url('/jpop-bg.png');
+	background-size: fit;
+	top: -50px;
+	left: -50px;
+	height: 338px; 
+	z-index: -1;
+}
+body {
+	font-family: monospace;
+}
+	table {
+		background-color:lightgray;
+		opacity: 85%;
+		margin-left:15%;
+		margin-top:20%;
+		width:70%;
+	}
+	td:nth-child(1) {
+		padding:3%;
+		text-align:center;
+	}
+</style>
 </head>
 <body>
-	<input type="checkbox" id="enableAutoplay"> Autoplay on Browser Start
-	<input type="checkbox" id="enableNotifications"> Display Notifications on Song Change
-	<script src="options.js"></script>
+	<div class="background">
+  <table border="1">
+    <tr>
+      <td class="label">Start playback on browser startup
+        <input type="checkbox" id="enableAutoplay" />
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Show notifications on song change
+        <input type="checkbox" id="enableNotifications" />
+      </td>
+    </tr>
+  </table>
+	</div>
+  <script src="options.js"></script>
 </body>
