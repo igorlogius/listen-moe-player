@@ -307,4 +307,13 @@ document
     let val = Date.now() / 1000 - started;
     songProgressElement.value = val;
   }, 500);
+
+      const type = await browser.runtime.sendMessage({ cmd: "getType" });
+      if (type === "KPOP") {
+        this.innerText = "Switch to J-POP";
+        document.body.classList.add("kpop");
+      } else {
+        this.innerText = "Switch to K-POP";
+        document.body.classList.remove("kpop");
+      }
 })();

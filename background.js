@@ -77,6 +77,10 @@ var radio = {
       });
     });
   },
+
+  getType() {
+    return storageItems.radioType;
+  },
   get isPlaying() {
     return !this.player.paused;
   },
