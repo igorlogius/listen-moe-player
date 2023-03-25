@@ -87,7 +87,7 @@ svg {
 #listeners {
 	position: absolute;
 	top: 5px;
-	right: 5px;
+	left: 5px;
 }
 
 #listeners svg {
@@ -277,6 +277,15 @@ svg {
 	position: absolute;
 	bottom: 2px;
 	right: 5px;
+}
+
+
+#detach {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+	width: 15px;
 }
 
 #settings svg {

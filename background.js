@@ -403,3 +403,25 @@ function createElement(tag, attrs, styles) {
   }
   return element;
 }
+
+
+/*
+browser.browserAction.onClicked.addListener( async (tab, info) => {
+	const popupurl = browser.runtime.getURL('popup.html');
+
+	if(info.button === 1){
+
+	browser.windows.create({
+		focused: true,
+		url: popupurl,
+		width: 480 ,
+		height: 145,
+		type: 'panel'
+	});
+	}else{
+		browser.browserAction.setPopup({popup: popupurl });
+		browser.browserAction.openPopup({});
+	}
+
+});
+*/

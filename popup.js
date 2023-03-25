@@ -1,5 +1,6 @@
 /* global browser */
 
+const popupurl = browser.runtime.getURL('popup.html');
 const songProgressElement = document.querySelector("#songProgress");
 const listenersSpan = document.querySelector("#listeners span");
 const npElementSpan = document.querySelector("#now-playing-text span");
@@ -9,6 +10,7 @@ const npRequestA = document.querySelector("#now-playing-request a");
 const npRequest = document.querySelector("#now-playing-request");
 const favToggle = document.querySelector("#favorite-toggle");
 const favToggleSVG = document.querySelector("#favorite-toggle svg");
+const detach = document.querySelector("#detach");
 
 let started;
 
@@ -29,7 +31,7 @@ async function updateInfo() {
     if (data.startTime) {
       started = new Date(data.startTime).getTime() / 1000;
     }
-    songProgressElement.max = duration;
+    songProgressElement.max = (duration > 0) ? duration : 0;
   }
 
   /* Sets Current Listners */
@@ -274,6 +276,17 @@ document
   /* Opens Settings */
   document.querySelector("#settings").addEventListener("click", () => {
     browser.runtime.openOptionsPage();
+  });
+
+  detach.addEventListener("click", () => {
+	  browser.windows.create({
+		focused: true,
+		url: popupurl,
+		width: 480 ,
+		height: 145,
+		type: 'panel'
+	});
+	window.close();
   });
 
   browser.runtime.onMessage.addListener(async (data /*, sender*/) => {
