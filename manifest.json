@@ -25,12 +25,13 @@
 		"page": "options.html"
 	},
 	"permissions": [
-		"*://*.listen.moe/*",
+		"https://listen.moe/*",
+		"wss://listen.moe/*",
 		"storage",
 		"notifications",
 		"cookies",
 		"webRequest",
 		"webRequestBlocking"
 	],
-	"version": "1.0.2"
+	"version": "1.0.3"
 }

@@ -1,20 +1,43 @@
 /* global browser */
 
+const songProgressElement = document.querySelector("#songProgress");
+const listenersSpan = document.querySelector("#listeners span");
+const npElementSpan = document.querySelector("#now-playing-text span");
+const npEventSpan = document.querySelector("#now-playing-event span");
+const npEvent = document.querySelector("#now-playing-event");
+const npRequestA = document.querySelector("#now-playing-request a");
+const npRequest = document.querySelector("#now-playing-request");
+const favToggle = document.querySelector("#favorite-toggle");
+const favToggleSVG = document.querySelector("#favorite-toggle svg");
+
+let started;
+
 async function updateInfo() {
+  console.debug("updateInfo");
   let data = await browser.runtime.sendMessage({ cmd: "getData" });
 
   if (typeof data === "undefined") {
     return;
   }
 
+  let duration;
+
+  if (data && data) {
+    if (data.song && data.song.duration) {
+      duration = data.song.duration;
+    }
+    if (data.startTime) {
+      started = new Date(data.startTime).getTime() / 1000;
+    }
+    songProgressElement.max = duration;
+  }
+
   /* Sets Current Listners */
-  document.querySelector("#listeners span").innerText =
+  listenersSpan.innerText =
     typeof data.listeners !== "undefined" ? data.listeners : "N/A";
 
-  const npElement = document.querySelector("#now-playing-text span");
-
-  while (npElement.hasChildNodes()) {
-    npElement.removeChild(npElement.lastChild);
+  while (npElementSpan.hasChildNodes()) {
+    npElementSpan.removeChild(npElementSpan.lastChild);
   }
 
   for (let index in data.song.artists) {
@@ -28,47 +51,35 @@ async function updateInfo() {
     const artistName = artist.nameRomaji || artist.name;
 
     artistLink.appendChild(document.createTextNode(artistName));
-    npElement.appendChild(artistLink);
+    npElementSpan.appendChild(artistLink);
 
     if (index < data.song.artists.length - 1) {
-      npElement.appendChild(document.createTextNode(", "));
+      npElementSpan.appendChild(document.createTextNode(", "));
     }
   }
 
   if (data.song.artists.length) {
-    npElement.appendChild(document.createTextNode(" - "));
+    npElementSpan.appendChild(document.createTextNode(" - "));
   }
 
-  npElement.appendChild(document.createTextNode(data.song.title || "No data"));
+  npElementSpan.appendChild(
+    document.createTextNode(data.song.title || "No data")
+  );
 
-  /* Sets Requester Info */
-  /**/
-  /*
-	if (data.event) {
-
-		document.querySelector('#now-playing-request a').innerText = '';
-		document.querySelector('#now-playing-request a').setAttribute('href', '');
-		document.querySelector('#now-playing-request').style.display = 'none';
-
-		document.querySelector('#now-playing-event span').innerText = data.event.name;
-		document.querySelector('#now-playing-event').style.display = 'block';
-
-	} else {*/
-
-  document.querySelector("#now-playing-event span").innerText = "";
-  document.querySelector("#now-playing-event").style.display = "none";
+  npEventSpan.innerText = "";
+  npEvent.style.display = "none";
 
   if (data.requester) {
-    document.querySelector("#now-playing-request a").innerText =
-      data.requester.displayName;
-    document
-      .querySelector("#now-playing-request a")
-      .setAttribute("href", `https://listen.moe/u/${data.requester.username}`);
-    document.querySelector("#now-playing-request").style.display = "block";
+    npRequestA.innerText = data.requester.displayName;
+    npRequestA.setAttribute(
+      "href",
+      `https://listen.moe/u/${data.requester.username}`
+    );
+    npRequest.style.display = "block";
   } else {
-    document.querySelector("#now-playing-request a").innerText = "";
-    document.querySelector("#now-playing-request a").setAttribute("href", "");
-    document.querySelector("#now-playing-request").style.display = "none";
+    npRequestA.innerText = "";
+    npRequestA.setAttribute("href", "");
+    npRequest.style.display = "none";
   }
 
   //}
@@ -76,16 +87,16 @@ async function updateInfo() {
 
   const token = await browser.runtime.sendMessage({ cmd: "getToken" });
   if (token !== null) {
-    document.querySelector("#favorite-toggle").classList.remove("login");
+    favToggle.classList.remove("login");
 
     if (data.song.favorite) {
-      document.querySelector("#favorite-toggle svg").classList.add("active");
+      favToggleSVG.classList.add("active");
     } else {
-      document.querySelector("#favorite-toggle svg").classList.remove("active");
+      favToggleSVG.classList.remove("active");
     }
   } else {
-    document.querySelector("#favorite-toggle").classList.add("login");
-    document.querySelector("#favorite-toggle svg").classList.remove("active");
+    favToggle.classList.add("login");
+    favToggleSVG.classList.remove("active");
   }
 }
 
@@ -277,4 +288,10 @@ document
   });
 
   updateInfo();
+
+  // update songProgress
+  setInterval(() => {
+    let val = Date.now() / 1000 - started;
+    songProgressElement.value = val;
+  }, 500);
 })();
