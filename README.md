@@ -2,6 +2,12 @@ Listen to listen.moe inside your browser.
 Adds a couple of extra functions via shortcuts.
 Like saving song info to disk or showing the currently playing song info on demand. And it is usable in private browsing mode.
 
+
+
+https://user-images.githubusercontent.com/67047467/227725753-879ca5df-e80a-4376-bb8c-8b7e5d7a2943.mp4
+
+
+
 <b>Usage/Features</b>
 <ul>
 	<li>Listen to listen.moe</li>
