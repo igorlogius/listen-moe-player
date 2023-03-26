@@ -1,6 +1,6 @@
 /* global browser */
 
-const popupurl = browser.runtime.getURL('popup.html');
+const popupurl = browser.runtime.getURL("popup.html");
 const nowPlayingTextSPAN = document.querySelector("#now-playing-text span");
 const nowPlayingText = document.querySelector("#now-playing-text");
 const radioToggleSVG = document.querySelector("#radio-toggle svg");
@@ -17,27 +17,28 @@ const volumeElement = document.querySelector("#volume-slider");
 const radioVolume = document.querySelector("#radio-volume");
 const radioTypeToggle = document.querySelector("#radio-type-toggle");
 const settings = document.querySelector("#settings");
+const numberProgressSPAN = document.querySelector("#numberProgress span");
 const body = document.body;
 
 let delayed_updateInfo_timerId;
 let started;
+let duration;
 
 function delayed_updateInfo() {
-	clearTimeout(delayed_updateInfo_timerId);
-	setTimeout(updateInfo, 500);
+  clearTimeout(delayed_updateInfo_timerId);
+  setTimeout(updateInfo, 500);
 }
 
 async function updateInfo() {
-  console.debug("updateInfo");
 
-      const type = await browser.runtime.sendMessage({ cmd: "getType" });
-      if (type === "KPOP") {
-        this.innerText = "Switch to J-POP";
-        body.classList.add("kpop");
-      } else {
-        this.innerText = "Switch to K-POP";
-        body.classList.remove("kpop");
-      }
+  const type = await browser.runtime.sendMessage({ cmd: "getType" });
+  if (type === "KPOP") {
+    this.innerText = "Switch to J-POP";
+    body.classList.add("kpop");
+  } else {
+    this.innerText = "Switch to K-POP";
+    body.classList.remove("kpop");
+  }
 
   volumeElement.value = await browser.runtime.sendMessage({ cmd: "getVol" });
 
@@ -49,7 +50,7 @@ async function updateInfo() {
   /* Sets Play/Pause depending on player status */
   if (await browser.runtime.sendMessage({ cmd: "isPlaying" })) {
     radioToggleSVG.classList.add("active");
-  }else{
+  } else {
     radioToggleSVG.classList.remove("active");
   }
 
@@ -59,16 +60,14 @@ async function updateInfo() {
     return;
   }
 
-  let duration;
-
-  if (data && data) {
+  if (data) {
     if (data.song && data.song.duration) {
       duration = data.song.duration;
     }
     if (data.startTime) {
       started = new Date(data.startTime).getTime() / 1000;
     }
-    songProgress.max = (duration > 0) ? duration : 0;
+    songProgress.max = duration > 0 ? duration : 0;
   }
 
   /* Sets Current Listners */
@@ -151,18 +150,11 @@ function getElWidth(el) {
 }
 
 function autoScroll() {
-  let time =
-    (Math.floor(
-      nowPlayingTextSPAN.innerText.length
-    ) /
-      10) *
-    500;
+  let time = (Math.floor(nowPlayingTextSPAN.innerText.length) / 10) * 500;
   if (getElWidth(nowPlayingTextSPAN) > getElWidth(nowPlayingText)) {
     clearTimeout(timeout);
     let offset =
-      getElWidth(nowPlayingTextSPAN) +
-      1 -
-      getElWidth(nowPlayingText);
+      getElWidth(nowPlayingTextSPAN) + 1 - getElWidth(nowPlayingText);
     nowPlayingTextSPAN.style.transition = `margin ${time}ms ease-in-out`;
     nowPlayingTextSPAN.style.marginLeft = `${-offset}px`;
     timeout = setTimeout(() => {
@@ -175,51 +167,32 @@ function autoScroll() {
   }
 }
 
-  nowPlayingText.addEventListener("mouseenter", () => {
-    let time =
-      (Math.floor(
-        nowPlayingTextSPAN.innerText.length
-      ) /
-        10) *
-      500;
-    let offset =
-      getElWidth(nowPlayingTextSPAN) +
-      1 -
-      getElWidth(nowPlayingText);
-    if (
-      getElWidth(nowPlayingTextSPAN) > getElWidth(nowPlayingText)
-    ) {
-      clearTimeout(timeout);
-      nowPlayingTextSPAN.style.transition = `margin ${time}ms ease-in-out`;
-      nowPlayingTextSPAN.style.marginLeft = `${-offset}px`;
-    }
-  });
+nowPlayingText.addEventListener("mouseenter", () => {
+  let time = (Math.floor(nowPlayingTextSPAN.innerText.length) / 10) * 500;
+  let offset = getElWidth(nowPlayingTextSPAN) + 1 - getElWidth(nowPlayingText);
+  if (getElWidth(nowPlayingTextSPAN) > getElWidth(nowPlayingText)) {
+    clearTimeout(timeout);
+    nowPlayingTextSPAN.style.transition = `margin ${time}ms ease-in-out`;
+    nowPlayingTextSPAN.style.marginLeft = `${-offset}px`;
+  }
+});
 
-  nowPlayingText.addEventListener("mouseleave", () => {
-    let time =
-      (Math.floor(
-        nowPlayingTextSPAN.innerText.length
-      ) /
-        10) *
-      500;
-    nowPlayingTextSPAN.style.transition = `margin ${time / 4}ms ease-in-out`;
-    nowPlayingTextSPAN.style.marginLeft = "0px";
-    setTimeout(() => {
-      timeout = setTimeout(autoScroll, 10000);
-    }, time / 4);
-  });
+nowPlayingText.addEventListener("mouseleave", () => {
+  let time = (Math.floor(nowPlayingTextSPAN.innerText.length) / 10) * 500;
+  nowPlayingTextSPAN.style.transition = `margin ${time / 4}ms ease-in-out`;
+  nowPlayingTextSPAN.style.marginLeft = "0px";
+  setTimeout(() => {
+    timeout = setTimeout(autoScroll, 10000);
+  }, time / 4);
+});
 
 /* Copy Artist and Song Title to Clipboard */
-nowPlayingTextSPAN
-  .addEventListener("click", function () {
-    window.getSelection().selectAllChildren(this);
-  });
+nowPlayingTextSPAN.addEventListener("click", function () {
+  window.getSelection().selectAllChildren(this);
+});
 
 (async () => {
-
-
   /* Initialize Volume Slider */
-
 
   volumeElement.addEventListener("input", async (e) => {
     await browser.runtime.sendMessage({ cmd: "setVol", arg: +e.target.value });
@@ -229,54 +202,51 @@ nowPlayingTextSPAN
     );
   });
 
-    radioVolume.addEventListener("wheel", async (e) => {
-      volumeElement.value =
-        e.deltaY < 0 ? +volumeElement.value + 5 : +volumeElement.value - 5;
-      await browser.runtime.sendMessage({
-        cmd: "setVol",
-        arg: +volumeElement.value,
-      });
-      volumeElement.parentElement.setAttribute(
-        "style",
-        `--volume: ${volumeElement.value}%`
-      );
+  radioVolume.addEventListener("wheel", async (e) => {
+    volumeElement.value =
+      e.deltaY < 0 ? +volumeElement.value + 5 : +volumeElement.value - 5;
+    await browser.runtime.sendMessage({
+      cmd: "setVol",
+      arg: +volumeElement.value,
     });
-
+    volumeElement.parentElement.setAttribute(
+      "style",
+      `--volume: ${volumeElement.value}%`
+    );
+  });
 
   /* Enable/Disable Player */
-	radioToggleSVG 
-    .addEventListener("click", async function () {
-      const ret = await browser.runtime.sendMessage({ cmd: "isPlaying" });
-      if (ret) {
-        this.classList.remove("active");
-        await browser.runtime.sendMessage({ cmd: "disable" });
-      } else {
-        this.classList.add("active");
-        await browser.runtime.sendMessage({ cmd: "enable" });
-      }
-    });
+  radioToggleSVG.addEventListener("click", async function () {
+    const ret = await browser.runtime.sendMessage({ cmd: "isPlaying" });
+    if (ret) {
+      this.classList.remove("active");
+      await browser.runtime.sendMessage({ cmd: "disable" });
+    } else {
+      this.classList.add("active");
+      await browser.runtime.sendMessage({ cmd: "enable" });
+    }
+  });
 
   /* Favorites Button */
-	favoriteToggle
-    .addEventListener("click", async function () {
-      if (this.classList.contains("login")) {
-        window.open("https://listen.moe", "_blank");
-      } else {
-        await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
-      }
-    });
+  favoriteToggle.addEventListener("click", async function () {
+    if (this.classList.contains("login")) {
+      window.open("https://listen.moe", "_blank");
+    } else {
+      await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
+    }
+  });
 
   /* Toggles Radio Type */
-    radioTypeToggle.addEventListener("click", async function () {
-      const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
-      if (type === "KPOP") {
-        this.innerText = "Switch to J-POP";
-        body.classList.add("kpop");
-      } else {
-        this.innerText = "Switch to K-POP";
-        body.classList.remove("kpop");
-      }
-    });
+  radioTypeToggle.addEventListener("click", async function () {
+    const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
+    if (type === "KPOP") {
+      this.innerText = "Switch to J-POP";
+      body.classList.add("kpop");
+    } else {
+      this.innerText = "Switch to K-POP";
+      body.classList.remove("kpop");
+    }
+  });
 
   /* Opens Settings */
   settings.addEventListener("click", () => {
@@ -284,17 +254,15 @@ nowPlayingTextSPAN
   });
 
   detach.addEventListener("click", () => {
-	  browser.windows.create({
-		focused: true,
-		url: popupurl,
-		width: 480 ,
-		height: 145,
-		type: 'panel'
-	});
-	window.close();
+    browser.windows.create({
+      focused: true,
+      url: popupurl,
+      width: 480,
+      height: 145,
+      type: "panel",
+    });
+    window.close();
   });
-
-
 
   browser.runtime.onMessage.addListener(async (data /*, sender*/) => {
     switch (data.cmd) {
@@ -308,8 +276,8 @@ nowPlayingTextSPAN
 
   // update songProgress
   setInterval(() => {
-    let val = Date.now() / 1000 - started;
+    let val = parseInt(Date.now() / 1000 - started);
     songProgress.value = val;
-  }, 500);
-
+    numberProgressSPAN.innerText = val + "/" + duration;
+  }, 1000);
 })();
