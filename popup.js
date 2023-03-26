@@ -1,21 +1,58 @@
 /* global browser */
 
 const popupurl = browser.runtime.getURL('popup.html');
-const songProgressElement = document.querySelector("#songProgress");
-const listenersSpan = document.querySelector("#listeners span");
-const npElementSpan = document.querySelector("#now-playing-text span");
-const npEventSpan = document.querySelector("#now-playing-event span");
-const npEvent = document.querySelector("#now-playing-event");
-const npRequestA = document.querySelector("#now-playing-request a");
-const npRequest = document.querySelector("#now-playing-request");
-const favToggle = document.querySelector("#favorite-toggle");
-const favToggleSVG = document.querySelector("#favorite-toggle svg");
+const nowPlayingTextSPAN = document.querySelector("#now-playing-text span");
+const nowPlayingText = document.querySelector("#now-playing-text");
+const radioToggleSVG = document.querySelector("#radio-toggle svg");
+const songProgress = document.querySelector("#songProgress");
+const listenersSPAN = document.querySelector("#listeners span");
+const nowPlayingEventSPAN = document.querySelector("#now-playing-event span");
+const nowPlayingEvent = document.querySelector("#now-playing-event");
+const nowPlayingRequestA = document.querySelector("#now-playing-request a");
+const nowPlayingRequest = document.querySelector("#now-playing-request");
+const favoriteToggle = document.querySelector("#favorite-toggle");
+const favoriteToggleSVG = document.querySelector("#favorite-toggle svg");
 const detach = document.querySelector("#detach");
+const volumeElement = document.querySelector("#volume-slider");
+const radioVolume = document.querySelector("#radio-volume");
+const radioTypeToggle = document.querySelector("#radio-type-toggle");
+const settings = document.querySelector("#settings");
+const body = document.body;
 
+let delayed_updateInfo_timerId;
 let started;
+
+function delayed_updateInfo() {
+	clearTimeout(delayed_updateInfo_timerId);
+	setTimeout(updateInfo, 500);
+}
 
 async function updateInfo() {
   console.debug("updateInfo");
+
+      const type = await browser.runtime.sendMessage({ cmd: "getType" });
+      if (type === "KPOP") {
+        this.innerText = "Switch to J-POP";
+        body.classList.add("kpop");
+      } else {
+        this.innerText = "Switch to K-POP";
+        body.classList.remove("kpop");
+      }
+
+  volumeElement.value = await browser.runtime.sendMessage({ cmd: "getVol" });
+
+  volumeElement.parentElement.setAttribute(
+    "style",
+    `--volume: ${volumeElement.value}%`
+  );
+
+  /* Sets Play/Pause depending on player status */
+  if (await browser.runtime.sendMessage({ cmd: "isPlaying" })) {
+    radioToggleSVG.classList.add("active");
+  }else{
+    radioToggleSVG.classList.remove("active");
+  }
+
   let data = await browser.runtime.sendMessage({ cmd: "getData" });
 
   if (typeof data === "undefined") {
@@ -31,15 +68,15 @@ async function updateInfo() {
     if (data.startTime) {
       started = new Date(data.startTime).getTime() / 1000;
     }
-    songProgressElement.max = (duration > 0) ? duration : 0;
+    songProgress.max = (duration > 0) ? duration : 0;
   }
 
   /* Sets Current Listners */
-  listenersSpan.innerText =
+  listenersSPAN.innerText =
     typeof data.listeners !== "undefined" ? data.listeners : "N/A";
 
-  while (npElementSpan.hasChildNodes()) {
-    npElementSpan.removeChild(npElementSpan.lastChild);
+  while (nowPlayingTextSPAN.hasChildNodes()) {
+    nowPlayingTextSPAN.removeChild(nowPlayingTextSPAN.lastChild);
   }
 
   for (let index in data.song.artists) {
@@ -53,35 +90,35 @@ async function updateInfo() {
     const artistName = artist.nameRomaji || artist.name;
 
     artistLink.appendChild(document.createTextNode(artistName));
-    npElementSpan.appendChild(artistLink);
+    nowPlayingTextSPAN.appendChild(artistLink);
 
     if (index < data.song.artists.length - 1) {
-      npElementSpan.appendChild(document.createTextNode(", "));
+      nowPlayingTextSPAN.appendChild(document.createTextNode(", "));
     }
   }
 
   if (data.song.artists.length) {
-    npElementSpan.appendChild(document.createTextNode(" - "));
+    nowPlayingTextSPAN.appendChild(document.createTextNode(" - "));
   }
 
-  npElementSpan.appendChild(
+  nowPlayingTextSPAN.appendChild(
     document.createTextNode(data.song.title || "No data")
   );
 
-  npEventSpan.innerText = "";
-  npEvent.style.display = "none";
+  nowPlayingEventSPAN.innerText = "";
+  nowPlayingEvent.style.display = "none";
 
   if (data.requester) {
-    npRequestA.innerText = data.requester.displayName;
-    npRequestA.setAttribute(
+    nowPlayingRequestA.innerText = data.requester.displayName;
+    nowPlayingRequestA.setAttribute(
       "href",
       `https://listen.moe/u/${data.requester.username}`
     );
-    npRequest.style.display = "block";
+    nowPlayingRequest.style.display = "block";
   } else {
-    npRequestA.innerText = "";
-    npRequestA.setAttribute("href", "");
-    npRequest.style.display = "none";
+    nowPlayingRequestA.innerText = "";
+    nowPlayingRequestA.setAttribute("href", "");
+    nowPlayingRequest.style.display = "none";
   }
 
   //}
@@ -89,16 +126,16 @@ async function updateInfo() {
 
   const token = await browser.runtime.sendMessage({ cmd: "getToken" });
   if (token !== null) {
-    favToggle.classList.remove("login");
+    favoriteToggle.classList.remove("login");
 
     if (data.song.favorite) {
-      favToggleSVG.classList.add("active");
+      favoriteToggleSVG.classList.add("active");
     } else {
-      favToggleSVG.classList.remove("active");
+      favoriteToggleSVG.classList.remove("active");
     }
   } else {
-    favToggle.classList.add("login");
-    favToggleSVG.classList.remove("active");
+    favoriteToggle.classList.add("login");
+    favoriteToggleSVG.classList.remove("active");
   }
 }
 
@@ -106,7 +143,6 @@ async function updateInfo() {
 let timeout = setTimeout(autoScroll, 1000);
 
 function getElWidth(el) {
-  el = document.querySelector(el);
   let elementCS = getComputedStyle(el);
   return (
     el.offsetWidth -
@@ -117,27 +153,21 @@ function getElWidth(el) {
 function autoScroll() {
   let time =
     (Math.floor(
-      document.querySelector("#now-playing-text span").innerText.length
+      nowPlayingTextSPAN.innerText.length
     ) /
       10) *
     500;
-  if (getElWidth("#now-playing-text span") > getElWidth("#now-playing-text")) {
+  if (getElWidth(nowPlayingTextSPAN) > getElWidth(nowPlayingText)) {
     clearTimeout(timeout);
     let offset =
-      getElWidth("#now-playing-text span") +
+      getElWidth(nowPlayingTextSPAN) +
       1 -
-      getElWidth("#now-playing-text");
-    document.querySelector(
-      "#now-playing-text span"
-    ).style.transition = `margin ${time}ms ease-in-out`;
-    document.querySelector(
-      "#now-playing-text span"
-    ).style.marginLeft = `${-offset}px`;
+      getElWidth(nowPlayingText);
+    nowPlayingTextSPAN.style.transition = `margin ${time}ms ease-in-out`;
+    nowPlayingTextSPAN.style.marginLeft = `${-offset}px`;
     timeout = setTimeout(() => {
-      document.querySelector(
-        "#now-playing-text span"
-      ).style.transition = `margin ${time / 4}ms ease-in-out`;
-      document.querySelector("#now-playing-text span").style.marginLeft = "0px";
+      nowPlayingTextSPAN.style.transition = `margin ${time / 4}ms ease-in-out`;
+      nowPlayingTextSPAN.style.marginLeft = "0px";
       setTimeout(() => {
         timeout = setTimeout(autoScroll, 10000);
       }, time / 4);
@@ -145,66 +175,51 @@ function autoScroll() {
   }
 }
 
-document
-  .querySelector("#now-playing-text")
-  .addEventListener("mouseenter", () => {
+  nowPlayingText.addEventListener("mouseenter", () => {
     let time =
       (Math.floor(
-        document.querySelector("#now-playing-text span").innerText.length
+        nowPlayingTextSPAN.innerText.length
       ) /
         10) *
       500;
     let offset =
-      getElWidth("#now-playing-text span") +
+      getElWidth(nowPlayingTextSPAN) +
       1 -
-      getElWidth("#now-playing-text");
+      getElWidth(nowPlayingText);
     if (
-      getElWidth("#now-playing-text span") > getElWidth("#now-playing-text")
+      getElWidth(nowPlayingTextSPAN) > getElWidth(nowPlayingText)
     ) {
       clearTimeout(timeout);
-      document.querySelector(
-        "#now-playing-text span"
-      ).style.transition = `margin ${time}ms ease-in-out`;
-      document.querySelector(
-        "#now-playing-text span"
-      ).style.marginLeft = `${-offset}px`;
+      nowPlayingTextSPAN.style.transition = `margin ${time}ms ease-in-out`;
+      nowPlayingTextSPAN.style.marginLeft = `${-offset}px`;
     }
   });
 
-document
-  .querySelector("#now-playing-text")
-  .addEventListener("mouseleave", () => {
+  nowPlayingText.addEventListener("mouseleave", () => {
     let time =
       (Math.floor(
-        document.querySelector("#now-playing-text span").innerText.length
+        nowPlayingTextSPAN.innerText.length
       ) /
         10) *
       500;
-    document.querySelector(
-      "#now-playing-text span"
-    ).style.transition = `margin ${time / 4}ms ease-in-out`;
-    document.querySelector("#now-playing-text span").style.marginLeft = "0px";
+    nowPlayingTextSPAN.style.transition = `margin ${time / 4}ms ease-in-out`;
+    nowPlayingTextSPAN.style.marginLeft = "0px";
     setTimeout(() => {
       timeout = setTimeout(autoScroll, 10000);
     }, time / 4);
   });
 
 /* Copy Artist and Song Title to Clipboard */
-document
-  .querySelector("#now-playing-text span")
+nowPlayingTextSPAN
   .addEventListener("click", function () {
     window.getSelection().selectAllChildren(this);
   });
 
 (async () => {
-  /* Initialize Volume Slider */
-  const volumeElement = document.querySelector("#volume-slider");
 
-  volumeElement.value = await browser.runtime.sendMessage({ cmd: "getVol" });
-  volumeElement.parentElement.setAttribute(
-    "style",
-    `--volume: ${volumeElement.value}%`
-  );
+
+  /* Initialize Volume Slider */
+
 
   volumeElement.addEventListener("input", async (e) => {
     await browser.runtime.sendMessage({ cmd: "setVol", arg: +e.target.value });
@@ -214,9 +229,7 @@ document
     );
   });
 
-  document
-    .querySelector("#radio-volume")
-    .addEventListener("wheel", async (e) => {
+    radioVolume.addEventListener("wheel", async (e) => {
       volumeElement.value =
         e.deltaY < 0 ? +volumeElement.value + 5 : +volumeElement.value - 5;
       await browser.runtime.sendMessage({
@@ -229,14 +242,9 @@ document
       );
     });
 
-  /* Sets Play/Pause depending on player status */
-  if (await browser.runtime.sendMessage({ cmd: "isPlaying" })) {
-    document.querySelector("#radio-toggle svg").classList.add("active");
-  }
 
   /* Enable/Disable Player */
-  document
-    .querySelector("#radio-toggle svg")
+	radioToggleSVG 
     .addEventListener("click", async function () {
       const ret = await browser.runtime.sendMessage({ cmd: "isPlaying" });
       if (ret) {
@@ -249,8 +257,7 @@ document
     });
 
   /* Favorites Button */
-  document
-    .querySelector("#favorite-toggle")
+	favoriteToggle
     .addEventListener("click", async function () {
       if (this.classList.contains("login")) {
         window.open("https://listen.moe", "_blank");
@@ -260,21 +267,19 @@ document
     });
 
   /* Toggles Radio Type */
-  document
-    .querySelector("#radio-type-toggle")
-    .addEventListener("click", async function () {
+    radioTypeToggle.addEventListener("click", async function () {
       const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
       if (type === "KPOP") {
         this.innerText = "Switch to J-POP";
-        document.body.classList.add("kpop");
+        body.classList.add("kpop");
       } else {
         this.innerText = "Switch to K-POP";
-        document.body.classList.remove("kpop");
+        body.classList.remove("kpop");
       }
     });
 
   /* Opens Settings */
-  document.querySelector("#settings").addEventListener("click", () => {
+  settings.addEventListener("click", () => {
     browser.runtime.openOptionsPage();
   });
 
@@ -289,13 +294,12 @@ document
 	window.close();
   });
 
+
+
   browser.runtime.onMessage.addListener(async (data /*, sender*/) => {
     switch (data.cmd) {
-      case "songChanged":
-      case "favSong":
-        updateInfo();
-        break;
-      default:
+      case "updateInfo":
+        delayed_updateInfo();
         break;
     }
   });
@@ -305,15 +309,7 @@ document
   // update songProgress
   setInterval(() => {
     let val = Date.now() / 1000 - started;
-    songProgressElement.value = val;
+    songProgress.value = val;
   }, 500);
 
-      const type = await browser.runtime.sendMessage({ cmd: "getType" });
-      if (type === "KPOP") {
-        this.innerText = "Switch to J-POP";
-        document.body.classList.add("kpop");
-      } else {
-        this.innerText = "Switch to K-POP";
-        document.body.classList.remove("kpop");
-      }
 })();

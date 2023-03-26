@@ -8,12 +8,13 @@
 		"default_popup": "popup.html"
 	},
 	"commands": {
-		"save_playing_info": { "description": "Save Now Playing Info" },
-		"show_playing": { "description": "Display Now Playing" },
-		"toggle_fav": { "description": "Favorit Now Playing" },
-		"toggle_radio": { "description": "Toggle Radio" },
-		"vol_down": { "description": "Lower Radio Volume" },
-		"vol_up": { "description": "Raise Radio Volume" }
+		"savePlaying": { "description": "Save Now Playing Info" },
+		"showPlaying": { "description": "Display Now Playing Song Info" },
+		"toggleFavorite": { "description": "Toggle Favorit Now Playing Song" },
+		"togglePlayback": { "description": "Toggle Playback" },
+		"toggleType": { "description": "Toggle RadioType" },
+		"volDown": { "description": "Lower Volume" },
+		"volUp": { "description": "Raise Volume" }
 	},
 	"description": "Listen to https://listen.moe",
 	"icons": {
@@ -33,5 +34,5 @@
 		"webRequest",
 		"webRequestBlocking"
 	],
-	"version": "1.1.7"
+	"version": "1.1.8"
 }
