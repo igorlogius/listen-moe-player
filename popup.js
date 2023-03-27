@@ -68,6 +68,7 @@ async function updateInfo() {
       started = new Date(data.startTime).getTime() / 1000;
     }
     songProgress.max = duration > 0 ? duration : 0;
+    songProgress.value = duration > 0 ? duration : 0;
   }
 
   /* Sets Current Listners */
@@ -120,22 +121,19 @@ async function updateInfo() {
     nowPlayingRequest.style.display = "none";
   }
 
-  //}
-  /**/
-
   const token = await browser.runtime.sendMessage({ cmd: "getToken" });
-  if (token !== null) {
-    favoriteToggle.classList.remove("login");
+	if(token){
+    		favoriteToggle.classList.remove("login");
+		if(data.song.favorite){
+      			favoriteToggleSVG.classList.add("active");
+		}else{
+    			favoriteToggleSVG.classList.remove("active");
+		}
 
-    if (data.song.favorite) {
-      favoriteToggleSVG.classList.add("active");
-    } else {
-      favoriteToggleSVG.classList.remove("active");
-    }
-  } else {
-    favoriteToggle.classList.add("login");
-    favoriteToggleSVG.classList.remove("active");
-  }
+	}else{
+    		favoriteToggleSVG.classList.remove("active");
+    		favoriteToggle.classList.add("login");
+	}
 }
 
 /* Does Scrolling Text */
@@ -216,23 +214,22 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   });
 
   /* Enable/Disable Player */
-  radioToggleSVG.addEventListener("click", async function () {
-    const ret = await browser.runtime.sendMessage({ cmd: "isPlaying" });
+  radioToggleSVG.addEventListener("click", async () => {
+    const ret = await browser.runtime.sendMessage({ cmd: "togglePlayback" });
     if (ret) {
-      this.classList.remove("active");
-      await browser.runtime.sendMessage({ cmd: "disable" });
+      radioToggleSVG.classList.add("active");
     } else {
-      this.classList.add("active");
-      await browser.runtime.sendMessage({ cmd: "enable" });
+      radioToggleSVG.classList.remove("active");
     }
   });
 
   /* Favorites Button */
-  favoriteToggle.addEventListener("click", async function () {
-    if (this.classList.contains("login")) {
-      window.open("https://listen.moe", "_blank");
+  favoriteToggle.addEventListener("click", async () => {
+      const ret = await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
+    if (ret) {
+      favoriteToggleSVG.classList.add("active");
     } else {
-      await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
+      favoriteToggleSVG.classList.remove("active");
     }
   });
 

@@ -32,8 +32,13 @@ let radio = {
   async disable() {
     this.player.setAttribute("src", "");
   },
-  async togglePlayback() {
-    this.isPlaying() ? this.disable() : this.enable();
+  togglePlayback() {
+    if(this.isPlaying()){
+	    this.disable() 
+	    return false;
+    }
+    this.enable();
+    return true;
   },
   getType() {
     return storage.radioType;
@@ -111,7 +116,7 @@ let radio = {
       const { id } = this.data.song;
 
       const res = await fetch("https://listen.moe/graphql", {
-        method: "POST",
+	      method: "POST",
         headers,
         body: JSON.stringify({
           operationName: "favoriteSong",
@@ -126,9 +131,14 @@ let radio = {
         }),
       });
 
-      //const json = await res.json();
+      const json = await res.json();
+      if (json.data && json.data.favoriteSong && json.data.favoriteSong.id) {
+        this.data.song.favorite = (json.data.favoriteSong.id == id) ? !this.data.song.favorite: this.data.song.favorite;
+      } else if (json.errors) {
+        console.error(json.errors);
+	this.data.song.favorite = false;
+      }
 
-      this.data.song.favorite = !this.data.song.favorite;
       return this.data.song.favorite;
     } catch (e) {
       console.error(e);
@@ -159,8 +169,10 @@ let radio = {
           variables: { songs },
         }),
       });
-      const json = res.json();
-      if (json.data) {
+      const json = await res.json();
+	    console.log(json);
+      if (json.data && json.data.checkFavorite) {
+	      console.log(json.data.checkFavorite);
         return json.data.checkFavorite.includes(id);
       } else if (json.errors) {
         console.error(json.errors);
