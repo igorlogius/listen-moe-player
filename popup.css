@@ -365,12 +365,11 @@ body.kpop #detach svg:hover {
 
 
 #songProgress {
-	display:flex;
-	width: 100%;
-	/*border:1px solid red;*/
+	display:block;
+	width: 98%;
 	position: fixed;
 	top:0;
-	left:0;
+	left:1%;
 }
 
 
