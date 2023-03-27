@@ -33,9 +33,9 @@ let radio = {
     this.player.setAttribute("src", "");
   },
   togglePlayback() {
-    if(this.isPlaying()){
-	    this.disable() 
-	    return false;
+    if (this.isPlaying()) {
+      this.disable();
+      return false;
     }
     this.enable();
     return true;
@@ -116,7 +116,7 @@ let radio = {
       const { id } = this.data.song;
 
       const res = await fetch("https://listen.moe/graphql", {
-	      method: "POST",
+        method: "POST",
         headers,
         body: JSON.stringify({
           operationName: "favoriteSong",
@@ -133,10 +133,13 @@ let radio = {
 
       const json = await res.json();
       if (json.data && json.data.favoriteSong && json.data.favoriteSong.id) {
-        this.data.song.favorite = (json.data.favoriteSong.id == id) ? !this.data.song.favorite: this.data.song.favorite;
+        this.data.song.favorite =
+          json.data.favoriteSong.id == id
+            ? !this.data.song.favorite
+            : this.data.song.favorite;
       } else if (json.errors) {
         console.error(json.errors);
-	this.data.song.favorite = false;
+        this.data.song.favorite = false;
       }
 
       return this.data.song.favorite;
@@ -170,9 +173,9 @@ let radio = {
         }),
       });
       const json = await res.json();
-	    console.log(json);
+      console.log(json);
       if (json.data && json.data.checkFavorite) {
-	      console.log(json.data.checkFavorite);
+        console.log(json.data.checkFavorite);
         return json.data.checkFavorite.includes(id);
       } else if (json.errors) {
         console.error(json.errors);
@@ -200,74 +203,70 @@ let radio = {
         setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
       };
       radio.socket.ws.onmessage = async (message) => {
-        if (!message.data.length) {
-          return;
-        }
-        let response;
         try {
-          response = JSON.parse(message.data);
+          let response = JSON.parse(message.data);
+          //console.debug(JSON.stringify(response,null,4));
+          if (response.op === 0) {
+            radio.socket.heartbeat(response.d.heartbeat);
+            return;
+          }
+          if (response.op === 1) {
+            radio.data = response.d;
+            radio.data.song.favorite = await radio.checkFavorite(
+              radio.data.song.id
+            );
+
+            console.debug(JSON.stringify(radio.data.song, null, 4));
+            if (
+              Array.isArray(radio.data.song.albums) &&
+              radio.data.song.albums.length > 0 &&
+              radio.data.song.albums[0].image
+            ) {
+              const url =
+                "https://cdn.listen.moe/covers/" +
+                encodeURIComponent(radio.data.song.albums[0].image);
+              console.debug(url);
+              const res = await fetch(url, {
+                credentials: "omit",
+                cors: "no-cors",
+              });
+              const cover = await res.blob();
+              radio.data.song.coverData = await blobToBase64(cover);
+            } else {
+              radio.data.song.coverData = null;
+            }
+            if (
+              !radio.data.song.id ||
+              radio.data.song.id !== radio.socket.data.lastSongID
+            ) {
+              if (
+                radio.socket.data.lastSongID !== -1 &&
+                radio.isPlaying() &&
+                storage.enableNotifications
+              ) {
+                createNotification(
+                  "Now Playing",
+                  radio.data.song.title,
+                  radio.data.song.artists
+                    .map((a) => a.nameRomaji || a.name)
+                    .join(", "),
+                  radio.data.song.coverData
+                );
+              }
+              radio.socket.data.lastSongID = radio.data.song.id;
+            }
+            // if popup is visible ... tell it to update the infos
+            try {
+              await browser.runtime.sendMessage({
+                cmd: "updateInfo",
+              });
+            } catch (e) {
+              // noop ... when popup is not open
+            }
+          }
         } catch (err) {
           console.error(err);
           return;
-        }
-        if (response.op === 0) {
-          radio.socket.heartbeat(response.d.heartbeat);
-          return;
-        }
-        if (response.op === 1) {
-          if (
-            response.t !== "TRACK_UPDATE" &&
-            response.t !== "TRACK_UPDATE_REQUEST"
-          ) {
-            return;
-          }
-          radio.data = response.d;
-          radio.data.song.favorite = await radio.checkFavorite(
-            radio.data.song.id
-          );
-
-          if (
-            radio.data.song.albums.length > 0 &&
-            radio.data.song.albums[0].image
-          ) {
-            const url =
-              "https://cdn.listen.moe/covers/" +
-              encodeURIComponent(radio.data.song.albums[0].image);
-            const res = await fetch(url, {
-              credentials: "omit",
-              cors: "no-cors",
-            });
-            const cover = await res.blob();
-            radio.data.song.coverData = await blobToBase64(cover);
-          } else {
-            radio.data.song.coverData = null;
-          }
-          if (
-            !radio.data.song.id ||
-            radio.data.song.id !== radio.socket.data.lastSongID
-          ) {
-            if (
-              radio.socket.data.lastSongID !== -1 &&
-              radio.isPlaying() &&
-              storage.enableNotifications
-            ) {
-              createNotification(
-                "Now Playing",
-                radio.data.song.title,
-                radio.data.song.artists
-                  .map((a) => a.nameRomaji || a.name)
-                  .join(", "),
-                radio.data.song.coverData
-              );
-            }
-            radio.socket.data.lastSongID = radio.data.song.id;
-          }
-          // if popup is visible ... tell it to update the infos
-          try {
-            await browser.runtime.sendMessage({
-              cmd: "updateInfo",
-            });
-          } catch (e) {}
         }
       };
     },
@@ -282,8 +281,43 @@ let radio = {
 function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = (err) => reject(err);
+    reader.onload = (revt) => {
+      var img = document.createElement("img");
+      img.onload = (ievt) => {
+        var MAX_WIDTH = 300;
+        var MAX_HEIGHT = 300;
+
+        var width = img.width;
+        var height = img.height;
+
+        // Change the resizing logic
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = height * (MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = width * (MAX_HEIGHT / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        // Dynamically create a canvas element
+        var canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+
+        // Actual resizing
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Show resized image in preview element
+        var dataurl = canvas.toDataURL("png");
+        resolve(dataurl);
+      };
+      img.src = revt.target.result;
+    };
     reader.readAsDataURL(blob);
   });
 }
