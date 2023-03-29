@@ -32,11 +32,8 @@ function delayed_updateInfo() {
 }
 
 async function updateInfo() {
-
-
   const type = await browser.runtime.sendMessage({ cmd: "getType" });
 
-	
   if (type === "KPOP") {
     this.innerText = "Switch to J-POP";
     body.classList.add("kpop");
@@ -64,15 +61,9 @@ async function updateInfo() {
   if (typeof data === "undefined") {
     return;
   }
-  if(typeof data.song.coverData === 'string'){
-	  console.debug('trying to set coverData');
-
-	  //character.style = `background-image: url(${data.song.coverData}); width:100px;height:100px;`;
-	  character.style.background = `url(${data.song.coverData}) no-repeat center`;
-	  /*character.style.width = `100px`;
-	  character.style.height = `100px`;*/
-	  character.style['background-size'] = 'cover'; 
-
+  if (typeof data.song.coverData === "string") {
+    character.style.background = `url(${data.song.coverData}) no-repeat center`;
+    character.style["background-size"] = "cover";
   }
 
   if (data.song && data.song.duration) {
@@ -205,7 +196,6 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   window.getSelection().selectAllChildren(this);
 });
 
-
 (async () => {
   /* Initialize Volume Slider */
 
@@ -252,13 +242,12 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   /* Toggles Radio Type */
   radioTypeToggle.addEventListener("click", async function () {
-
-	  //character.style = `background-image: url(${data.song.coverData}); width:100px;height:100px;`;
-	  character.style.background = `url(/kanna.gif) no-repeat center`;
-	  /*character.style.width = `100px`;
+    //character.style = `background-image: url(${data.song.coverData}); width:100px;height:100px;`;
+    character.style.background = `url(/kanna.gif) no-repeat center`;
+    /*character.style.width = `100px`;
 	  character.style.height = `100px`;*/
-	  character.style['background-size'] = 'cover'; 
-	  
+    character.style["background-size"] = "cover";
+
     const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
     if (type === "KPOP") {
       this.innerText = "Switch to J-POP";
@@ -275,12 +264,9 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   });
 
   character.addEventListener("click", () => {
-	  
-	  browser.tabs.create({
-
-		  url: `https://listen.moe/albums/${data.song.albums[0].id}`
-	  });
-	  
+    browser.tabs.create({
+      url: `https://listen.moe/albums/${data.song.albums[0].id}`,
+    });
   });
 
   detach.addEventListener("click", () => {
