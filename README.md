@@ -1,16 +1,18 @@
-Listen to listen.moe inside your browser. 
-Adds a couple of extra functions via shortcuts.
-Like saving song info to disk or showing the currently playing song info on demand. And it is usable in private browsing mode.
-
-
-
-https://user-images.githubusercontent.com/67047467/227725753-879ca5df-e80a-4376-bb8c-8b7e5d7a2943.mp4
-
-
+Listen to https://listen.moe inside your browser.
+inspired by the offical extension, but fixes some issues and adds a couple of extra feature
 
 <b>Usage/Features</b>
 <ul>
-	<li>Listen to listen.moe</li>
+       <li>Listen to listen.moe</li>
+       <li>make player detachable into standalone window</li>
+       <li>make preferences page look nice</li>
+       <li>add show song on demand notification shortcut</li>
+       <li>add save song info to file shortcut</li>
+       <li>add toggle Radio Type shortcut</li>
+       <li>add toggle Playback shortcuts</li>
+       <li>add volume raise/lower shortcuts</li>
+       <li>add Song Progress indicator</li>
+       <li>runs in normal and private window mode</li>
 </ul>
 
 <b>Notes:</b>
