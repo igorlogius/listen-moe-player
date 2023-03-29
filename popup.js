@@ -61,11 +61,15 @@ async function updateInfo() {
 
   if (data.song && data.song.duration) {
     duration = data.song.duration;
+  }else{
+	  duration = -1;
   }
   if (data.startTime) {
     started = new Date(data.startTime).getTime() / 1000;
+  }else{
+	  started = -1;
   }
-  songProgress.max = duration > 0 ? duration : 0;
+  songProgress.max = duration > 0 ? duration : 1;
   songProgress.value = duration > 0 ? duration : 0;
 
   /* Sets Current Listners */
@@ -269,8 +273,12 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   // update songProgress
   setInterval(() => {
+	  if(started > 0 && duration > 0){
     let val = parseInt(Date.now() / 1000 - started);
     songProgress.value = val;
     numberProgressSPAN.innerText = val + "/" + duration;
+	  }else{
+    numberProgressSPAN.innerText = "-/-";
+	  }
   }, 1000);
 })();
