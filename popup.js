@@ -30,7 +30,6 @@ function delayed_updateInfo() {
 }
 
 async function updateInfo() {
-
   const type = await browser.runtime.sendMessage({ cmd: "getType" });
   if (type === "KPOP") {
     this.innerText = "Switch to J-POP";
@@ -60,16 +59,14 @@ async function updateInfo() {
     return;
   }
 
-  if (data) {
-    if (data.song && data.song.duration) {
-      duration = data.song.duration;
-    }
-    if (data.startTime) {
-      started = new Date(data.startTime).getTime() / 1000;
-    }
-    songProgress.max = duration > 0 ? duration : 0;
-    songProgress.value = duration > 0 ? duration : 0;
+  if (data.song && data.song.duration) {
+    duration = data.song.duration;
   }
+  if (data.startTime) {
+    started = new Date(data.startTime).getTime() / 1000;
+  }
+  songProgress.max = duration > 0 ? duration : 0;
+  songProgress.value = duration > 0 ? duration : 0;
 
   /* Sets Current Listners */
   listenersSPAN.innerText =
@@ -122,18 +119,17 @@ async function updateInfo() {
   }
 
   const token = await browser.runtime.sendMessage({ cmd: "getToken" });
-	if(token){
-    		favoriteToggle.classList.remove("login");
-		if(data.song.favorite){
-      			favoriteToggleSVG.classList.add("active");
-		}else{
-    			favoriteToggleSVG.classList.remove("active");
-		}
-
-	}else{
-    		favoriteToggleSVG.classList.remove("active");
-    		favoriteToggle.classList.add("login");
-	}
+  if (token) {
+    favoriteToggle.classList.remove("login");
+    if (data.song.favorite) {
+      favoriteToggleSVG.classList.add("active");
+    } else {
+      favoriteToggleSVG.classList.remove("active");
+    }
+  } else {
+    favoriteToggleSVG.classList.remove("active");
+    favoriteToggle.classList.add("login");
+  }
 }
 
 /* Does Scrolling Text */
@@ -225,7 +221,7 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   /* Favorites Button */
   favoriteToggle.addEventListener("click", async () => {
-      const ret = await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
+    const ret = await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
     if (ret) {
       favoriteToggleSVG.classList.add("active");
     } else {

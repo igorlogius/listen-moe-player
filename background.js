@@ -205,7 +205,6 @@ let radio = {
       radio.socket.ws.onmessage = async (message) => {
         try {
           let response = JSON.parse(message.data);
-          //console.debug(JSON.stringify(response,null,4));
           if (response.op === 0) {
             radio.socket.heartbeat(response.d.heartbeat);
             return;
@@ -216,7 +215,6 @@ let radio = {
               radio.data.song.id
             );
 
-            console.debug(JSON.stringify(radio.data.song, null, 4));
             if (
               Array.isArray(radio.data.song.albums) &&
               radio.data.song.albums.length > 0 &&
@@ -225,7 +223,6 @@ let radio = {
               const url =
                 "https://cdn.listen.moe/covers/" +
                 encodeURIComponent(radio.data.song.albums[0].image);
-              console.debug(url);
               const res = await fetch(url, {
                 credentials: "omit",
                 cors: "no-cors",

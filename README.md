@@ -1,18 +1,18 @@
-Listen to https://listen.moe inside your browser.
-inspired by the offical extension, but fixes some issues and adds a couple of extra feature
+Listen to https://listen.moe inside your browser. inspired by the offical
+extension, but fixes some issues and adds a couple of extra feature
 
 <b>Usage/Features</b>
 <ul>
-       <li>Listen to listen.moe</li>
-       <li>make player detachable into standalone window</li>
-       <li>make preferences page look nice</li>
-       <li>add show song on demand notification shortcut</li>
-       <li>add save song info to file shortcut</li>
-       <li>add toggle Radio Type shortcut</li>
-       <li>add toggle Playback shortcuts</li>
-       <li>add volume raise/lower shortcuts</li>
-       <li>add Song Progress indicator</li>
-       <li>runs in normal and private window mode</li>
+  <li>Listen to listen.moe</li>
+  <li>make player detachable into standalone window</li>
+  <li>make preferences page look nice</li>
+  <li>add show song on demand notification shortcut</li>
+  <li>add save song info to file shortcut</li>
+  <li>add toggle Radio Type shortcut</li>
+  <li>add toggle Playback shortcuts</li>
+  <li>add volume raise/lower shortcuts</li>
+  <li>add Song Progress indicator</li>
+  <li>runs in normal and private window mode</li>
 </ul>
 
 <b>Notes:</b>
