@@ -65,12 +65,11 @@ svg {
 
 #character {
 	background-image: url('/kanna.gif');
-	background-position-x: -3px;
 	background-size: cover;
-	height: 145px;
+	height: 140px;
 	width: 110px;
 	bottom: 0px;
-	left: 5px;
+	left: 0px;
 }
 
 /* Container */
@@ -366,10 +365,10 @@ body.kpop #detach svg:hover {
 
 #songProgress {
 	display:block;
-	width: 98%;
+	width: calc(98% - 110px);
 	position: fixed;
-	top:0;
-	left:1%;
+	top: 0px;
+	left: calc(110px + 3px);
 }
 
 

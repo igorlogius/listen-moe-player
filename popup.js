@@ -18,11 +18,13 @@ const radioVolume = document.querySelector("#radio-volume");
 const radioTypeToggle = document.querySelector("#radio-type-toggle");
 const settings = document.querySelector("#settings");
 const numberProgressSPAN = document.querySelector("#numberProgress span");
+const character = document.querySelector("#character");
 const body = document.body;
 
 let delayed_updateInfo_timerId;
 let started;
 let duration;
+let data;
 
 function delayed_updateInfo() {
   clearTimeout(delayed_updateInfo_timerId);
@@ -30,7 +32,11 @@ function delayed_updateInfo() {
 }
 
 async function updateInfo() {
+
+
   const type = await browser.runtime.sendMessage({ cmd: "getType" });
+
+	
   if (type === "KPOP") {
     this.innerText = "Switch to J-POP";
     body.classList.add("kpop");
@@ -53,21 +59,31 @@ async function updateInfo() {
     radioToggleSVG.classList.remove("active");
   }
 
-  let data = await browser.runtime.sendMessage({ cmd: "getData" });
+  data = await browser.runtime.sendMessage({ cmd: "getData" });
 
   if (typeof data === "undefined") {
     return;
   }
+  if(typeof data.song.coverData === 'string'){
+	  console.debug('trying to set coverData');
+
+	  //character.style = `background-image: url(${data.song.coverData}); width:100px;height:100px;`;
+	  character.style.background = `url(${data.song.coverData}) no-repeat center`;
+	  /*character.style.width = `100px`;
+	  character.style.height = `100px`;*/
+	  character.style['background-size'] = 'cover'; 
+
+  }
 
   if (data.song && data.song.duration) {
     duration = data.song.duration;
-  }else{
-	  duration = -1;
+  } else {
+    duration = -1;
   }
   if (data.startTime) {
     started = new Date(data.startTime).getTime() / 1000;
-  }else{
-	  started = -1;
+  } else {
+    started = -1;
   }
   songProgress.max = duration > 0 ? duration : 1;
   songProgress.value = duration > 0 ? duration : 0;
@@ -189,6 +205,7 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   window.getSelection().selectAllChildren(this);
 });
 
+
 (async () => {
   /* Initialize Volume Slider */
 
@@ -235,6 +252,13 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   /* Toggles Radio Type */
   radioTypeToggle.addEventListener("click", async function () {
+
+	  //character.style = `background-image: url(${data.song.coverData}); width:100px;height:100px;`;
+	  character.style.background = `url(/kanna.gif) no-repeat center`;
+	  /*character.style.width = `100px`;
+	  character.style.height = `100px`;*/
+	  character.style['background-size'] = 'cover'; 
+	  
     const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
     if (type === "KPOP") {
       this.innerText = "Switch to J-POP";
@@ -248,6 +272,15 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   /* Opens Settings */
   settings.addEventListener("click", () => {
     browser.runtime.openOptionsPage();
+  });
+
+  character.addEventListener("click", () => {
+	  
+	  browser.tabs.create({
+
+		  url: `https://listen.moe/albums/${data.song.albums[0].id}`
+	  });
+	  
   });
 
   detach.addEventListener("click", () => {
@@ -273,12 +306,12 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   // update songProgress
   setInterval(() => {
-	  if(started > 0 && duration > 0){
-    let val = parseInt(Date.now() / 1000 - started);
-    songProgress.value = val;
-    numberProgressSPAN.innerText = val + "/" + duration;
-	  }else{
-    numberProgressSPAN.innerText = "-/-";
-	  }
+    if (started > 0 && duration > 0) {
+      let val = parseInt(Date.now() / 1000 - started);
+      songProgress.value = val;
+      numberProgressSPAN.innerText = val + "/" + duration;
+    } else {
+      numberProgressSPAN.innerText = "-/-";
+    }
   }, 1000);
 })();

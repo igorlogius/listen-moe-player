@@ -281,8 +281,8 @@ function blobToBase64(blob) {
     reader.onload = (revt) => {
       var img = document.createElement("img");
       img.onload = (ievt) => {
-        var MAX_WIDTH = 300;
-        var MAX_HEIGHT = 300;
+        var MAX_WIDTH = 150;
+        var MAX_HEIGHT = 150;
 
         var width = img.width;
         var height = img.height;
