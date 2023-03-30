@@ -64,6 +64,7 @@ async function updateInfo() {
   if (typeof data.song.coverData === "string") {
     character.style.background = `url(${data.song.coverData}) no-repeat center`;
     character.style["background-size"] = "cover";
+    character.style["cursor"] = "pointer";
   }
 
   if (data.song && data.song.duration) {
@@ -247,6 +248,7 @@ nowPlayingTextSPAN.addEventListener("click", function () {
     /*character.style.width = `100px`;
 	  character.style.height = `100px`;*/
     character.style["background-size"] = "cover";
+    character.style["cursor"] = "auto";
 
     const type = await browser.runtime.sendMessage({ cmd: "toggleType" });
     if (type === "KPOP") {

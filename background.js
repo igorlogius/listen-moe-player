@@ -28,6 +28,7 @@ let radio = {
   },
   async enable() {
     this.player.setAttribute("src", radioType[storage.radioType].stream);
+    radio.socket.init();
   },
   async disable() {
     this.player.setAttribute("src", "");
@@ -188,20 +189,21 @@ let radio = {
   socket: {
     ws: null,
     data: { lastSongID: -1 },
+    reConnect(err) {
+        clearInterval(radio.socket.heartbeatIntervalTimerId);
+        setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
+    },
     init() {
+
       radio.socket.ws = new WebSocket(radioType[storage.radioType].gateway);
+
       radio.socket.ws.onopen = () => {
-        clearInterval(radio.socket.sendHeartbeat);
+        clearInterval(radio.socket.heartbeatIntervalTimerId);
       };
-      radio.socket.ws.onerror = (err) => {
-        console.error(err);
-        clearInterval(radio.socket.sendHeartbeat);
-        setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
-      };
-      radio.socket.ws.onclose = (err) => {
-        clearInterval(radio.socket.sendHeartbeat);
-        setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
-      };
+
+      radio.socket.ws.onerror = this.reConnect;
+      radio.socket.ws.onclose = this.reConnect;
+
       radio.socket.ws.onmessage = async (message) => {
         try {
           let response = JSON.parse(message.data);
@@ -267,10 +269,11 @@ let radio = {
         }
       };
     },
-    heartbeat(heartbeat) {
-      radio.socket.sendHeartbeat = setInterval(() => {
+    heartbeat(intvalTime) {
+      clearInterval(radio.socket.heartbeatIntervalTimerId);
+      radio.socket.heartbeatIntervalTimerId = setInterval(() => {
         radio.socket.ws.send(JSON.stringify({ op: 9 }));
-      }, heartbeat);
+      }, intvalTime);
     },
   },
 };
