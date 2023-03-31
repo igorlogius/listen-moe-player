@@ -282,7 +282,8 @@ function blobToBase64(blob) {
     const reader = new FileReader();
     reader.onload = (revt) => {
       var img = document.createElement("img");
-      img.onload = (ievt) => {
+      img.onerror = reject;
+      img.onload = () => {
         var MAX_WIDTH = 150;
         var MAX_HEIGHT = 150;
 
@@ -365,7 +366,9 @@ async function onCommand(cmd, arg) {
       await browser.runtime.sendMessage({
         cmd: "updateInfo",
       });
-    } catch (e) {}
+    } catch (e) {
+	    // noop ignore if popup is not open
+    }
   }, 500);
 }
 
