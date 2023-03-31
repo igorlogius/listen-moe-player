@@ -190,11 +190,10 @@ let radio = {
     ws: null,
     data: { lastSongID: -1 },
     reConnect(err) {
-        clearInterval(radio.socket.heartbeatIntervalTimerId);
-        setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
+      clearInterval(radio.socket.heartbeatIntervalTimerId);
+      setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
     },
     init() {
-
       radio.socket.ws = new WebSocket(radioType[storage.radioType].gateway);
 
       radio.socket.ws.onopen = () => {
