@@ -296,7 +296,6 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   setInterval(() => {
     if (started > 0 && duration > 0) {
       let val = parseInt(Date.now() / 1000 - started);
-      console.debug(val, duration);
       if (val < duration) {
         songProgress.value = val;
         numberProgressSPAN.innerText = val + "/" + duration;
