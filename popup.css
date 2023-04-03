@@ -64,7 +64,7 @@ svg {
 /* Character */
 
 #character {
-  background-image: url("/kanna.gif");
+  /*background-image: url("/kanna.gif");*/
   background-size: cover;
   height: 140px;
   width: 110px;

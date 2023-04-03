@@ -79,9 +79,15 @@ async function updateInfo() {
     typeof getData.song.coverData === "string" &&
     getData.song.coverData !== "null"
   ) {
+	  if(isPlaying){
     character.style.background = `url(${getData.song.coverData}) no-repeat center`;
     character.style["background-size"] = "cover";
     character.style["cursor"] = "pointer";
+	  }else{
+    character.style.background = `url(/kanna_sleeping.gif) no-repeat center`;
+    character.style["background-size"] = "cover";
+    character.style["cursor"] = "auto";
+	  }
   } else {
     character.style.background = `url(/kanna.gif) no-repeat center`;
     character.style["background-size"] = "cover";
