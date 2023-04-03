@@ -15,7 +15,6 @@ const radioType = {
 
 let radio = {
   player: createElement("audio", { autoplay: true }),
-  data: { lastSongID: -1 },
   async getToken() {
     const tmp = await browser.cookies.get({
       url: "https://listen.moe",
@@ -28,7 +27,6 @@ let radio = {
   },
   async enable() {
     this.player.setAttribute("src", radioType[storage.radioType].stream);
-    radio.socket.init();
   },
   async disable() {
     this.player.setAttribute("src", "");
@@ -45,13 +43,19 @@ let radio = {
     return storage.radioType;
   },
   toggleType() {
-    this.socket.ws.close(4069, "Closed to switch radio type");
     storage.radioType = this.getType() === "JPOP" ? "KPOP" : "JPOP";
     browser.storage.local.set({ radioType: storage.radioType });
     if (this.isPlaying()) {
       this.enable();
     }
-    return storage.radioType;
+    try {
+      browser.runtime.sendMessage({
+        cmd: "updateInfo",
+      });
+    } catch (e) {
+      // noop ... when popup is not open
+    }
+    //return storage.radioType;
   },
   isPlaying() {
     return !this.player.paused;
@@ -65,7 +69,7 @@ let radio = {
   savePlaying() {
     let link = document.createElement("a");
     link.setAttribute("target", "_blank");
-    link.setAttribute("download", this.data.song.title + ".info");
+    link.setAttribute("download", this.getData().song.title + ".info");
     link.setAttribute(
       "href",
       "data:text/plain;charset=utf-8,artists: " +
@@ -98,7 +102,7 @@ let radio = {
       : this.setVol(Math.floor(this.getVol() - 5));
   },
   getData() {
-    return this.data;
+    return radio.socket[radio.getType()].data;
   },
   async toggleFavorite() {
     try {
@@ -187,92 +191,201 @@ let radio = {
     return false;
   },
   socket: {
-    ws: null,
-    data: { lastSongID: -1 },
-    reConnect(err) {
-      clearInterval(radio.socket.heartbeatIntervalTimerId);
-      setTimeout(radio.socket.init, err.code === 4069 ? 500 : 5000);
-    },
-    init() {
-      radio.socket.ws = new WebSocket(radioType[storage.radioType].gateway);
+    JPOP: {
+      heartbeatIntervalTimerId: null,
+      ws: null,
+      data: { lastSongID: -1 },
+      reConnect() {
+        clearInterval(radio.socket.JPOP.heartbeatIntervalTimerId);
+        setTimeout(radio.socket.JPOP.init, 5000);
+      },
+      init() {
+        radio.socket.JPOP.ws = new WebSocket(radioType["JPOP"].gateway);
 
-      radio.socket.ws.onopen = () => {
-        clearInterval(radio.socket.heartbeatIntervalTimerId);
-      };
+        radio.socket.JPOP.ws.onopen = () => {
+          clearInterval(radio.socket.JPOP.heartbeatIntervalTimerId);
+        };
 
-      radio.socket.ws.onerror = this.reConnect;
-      radio.socket.ws.onclose = this.reConnect;
+        radio.socket.JPOP.ws.onclose = this.reConnect;
 
-      radio.socket.ws.onmessage = async (message) => {
-        try {
-          let response = JSON.parse(message.data);
-          if (response.op === 0) {
-            radio.socket.heartbeat(response.d.heartbeat);
-            return;
-          }
-          if (response.op === 1) {
-            radio.data = response.d;
-            radio.data.song.favorite = await radio.checkFavorite(
-              radio.data.song.id
-            );
-
-            if (
-              Array.isArray(radio.data.song.albums) &&
-              radio.data.song.albums.length > 0 &&
-              radio.data.song.albums[0].image
-            ) {
-              const url =
-                "https://cdn.listen.moe/covers/" +
-                encodeURIComponent(radio.data.song.albums[0].image);
-              const res = await fetch(url, {
-                credentials: "omit",
-                cors: "no-cors",
-              });
-              const cover = await res.blob();
-              radio.data.song.coverData = await blobToBase64(cover);
-            } else {
-              radio.data.song.coverData = null;
+        radio.socket.JPOP.ws.onmessage = async (message) => {
+          try {
+            let response = JSON.parse(message.data);
+            if (response.op === 0) {
+              radio.socket.JPOP.heartbeat(response.d.heartbeat);
+              return;
             }
-            if (
-              !radio.data.song.id ||
-              radio.data.song.id !== radio.socket.data.lastSongID
-            ) {
+            if (response.op === 1) {
+              radio.socket.JPOP.data = response.d;
+              radio.socket.JPOP.data.song.favorite = await radio.checkFavorite(
+                radio.socket.JPOP.data.song.id
+              );
+
               if (
-                radio.socket.data.lastSongID !== -1 &&
-                radio.isPlaying() &&
-                storage.enableNotifications
+                Array.isArray(radio.socket.JPOP.data.song.albums) &&
+                radio.socket.JPOP.data.song.albums.length > 0 &&
+                radio.socket.JPOP.data.song.albums[0].image
               ) {
-                createNotification(
-                  "Now Playing",
-                  radio.data.song.title,
-                  radio.data.song.artists
-                    .map((a) => a.nameRomaji || a.name)
-                    .join(", "),
-                  radio.data.song.coverData
+                const url =
+                  "https://cdn.listen.moe/covers/" +
+                  encodeURIComponent(
+                    radio.socket.JPOP.data.song.albums[0].image
+                  );
+                const res = await fetch(url, {
+                  credentials: "omit",
+                  cors: "no-cors",
+                });
+                const cover = await res.blob();
+                radio.socket.JPOP.data.song.coverData = await blobToBase64(
+                  cover
                 );
+              } else {
+                radio.socket.JPOP.data.song.coverData = null;
               }
-              radio.socket.data.lastSongID = radio.data.song.id;
+              if (
+                !radio.socket.JPOP.data.song.id ||
+                radio.socket.JPOP.data.song.id !==
+                  radio.socket.JPOP.data.lastSongID
+              ) {
+                if (
+                  radio.socket.JPOP.data.lastSongID !== -1 &&
+                  radio.isPlaying() &&
+                  radio.getType() === "JPOP" &&
+                  storage.enableNotifications
+                ) {
+                  createNotification(
+                    "Now Playing",
+                    radio.socket.JPOP.data.song.title,
+                    radio.socket.JPOP.data.song.artists
+                      .map((a) => a.nameRomaji || a.name)
+                      .join(", "),
+                    radio.socket.JPOP.data.song.coverData
+                  );
+                }
+                radio.socket.JPOP.data.lastSongID =
+                  radio.socket.JPOP.data.song.id;
+              }
+              // TODO : only send, when this type is active
+              // if popup is visible ... tell it to update the infos
+              if (radio.getType() === "JPOP") {
+                try {
+                  await browser.runtime.sendMessage({
+                    cmd: "updateInfo",
+                  });
+                } catch (e) {
+                  // noop ... when popup is not open
+                }
+              }
             }
-            // if popup is visible ... tell it to update the infos
-            try {
-              await browser.runtime.sendMessage({
-                cmd: "updateInfo",
-              });
-            } catch (e) {
-              // noop ... when popup is not open
-            }
+          } catch (err) {
+            console.error(err);
           }
-        } catch (err) {
-          console.error(err);
-          return;
-        }
-      };
+        };
+      },
+      heartbeat(intvalTime) {
+        clearInterval(radio.socket.JPOP.heartbeatIntervalTimerId);
+        radio.socket.JPOP.heartbeatIntervalTimerId = setInterval(() => {
+          radio.socket.JPOP.ws.send(JSON.stringify({ op: 9 }));
+        }, intvalTime);
+      },
     },
-    heartbeat(intvalTime) {
-      clearInterval(radio.socket.heartbeatIntervalTimerId);
-      radio.socket.heartbeatIntervalTimerId = setInterval(() => {
-        radio.socket.ws.send(JSON.stringify({ op: 9 }));
-      }, intvalTime);
+
+    KPOP: {
+      heartbeatIntervalTimerId: null,
+      ws: null,
+      data: { lastSongID: -1 },
+      reConnect() {
+        clearInterval(radio.socket.KPOP.heartbeatIntervalTimerId);
+        setTimeout(radio.socket.KPOP.init, 5000);
+      },
+      init() {
+        radio.socket.KPOP.ws = new WebSocket(radioType["KPOP"].gateway);
+
+        radio.socket.KPOP.ws.onopen = () => {
+          clearInterval(radio.socket.KPOP.heartbeatIntervalTimerId);
+        };
+
+        radio.socket.KPOP.ws.onclose = this.reConnect;
+
+        radio.socket.KPOP.ws.onmessage = async (message) => {
+          try {
+            let response = JSON.parse(message.data);
+            if (response.op === 0) {
+              radio.socket.KPOP.heartbeat(response.d.heartbeat);
+              return;
+            }
+            if (response.op === 1) {
+              radio.socket.KPOP.data = response.d;
+              radio.socket.KPOP.data.song.favorite = await radio.checkFavorite(
+                radio.socket.KPOP.data.song.id
+              );
+
+              if (
+                Array.isArray(radio.socket.KPOP.data.song.albums) &&
+                radio.socket.KPOP.data.song.albums.length > 0 &&
+                radio.socket.KPOP.data.song.albums[0].image
+              ) {
+                const url =
+                  "https://cdn.listen.moe/covers/" +
+                  encodeURIComponent(
+                    radio.socket.KPOP.data.song.albums[0].image
+                  );
+                const res = await fetch(url, {
+                  credentials: "omit",
+                  cors: "no-cors",
+                });
+                const cover = await res.blob();
+                radio.socket.KPOP.data.song.coverData = await blobToBase64(
+                  cover
+                );
+              } else {
+                radio.socket.KPOP.data.song.coverData = null;
+              }
+              if (
+                !radio.socket.KPOP.data.song.id ||
+                radio.socket.KPOP.data.song.id !==
+                  radio.socket.KPOP.data.lastSongID
+              ) {
+                if (
+                  radio.socket.KPOP.data.lastSongID !== -1 &&
+                  radio.isPlaying() &&
+                  radio.getType() === "KPOP" &&
+                  storage.enableNotifications
+                ) {
+                  createNotification(
+                    "Now Playing",
+                    radio.socket.KPOP.data.song.title,
+                    radio.socket.KPOP.data.song.artists
+                      .map((a) => a.nameRomaji || a.name)
+                      .join(", "),
+                    radio.socket.KPOP.data.song.coverData
+                  );
+                }
+                radio.socket.KPOP.data.lastSongID =
+                  radio.socket.KPOP.data.song.id;
+              }
+              // if popup is visible ... tell it to update the infos
+              if (radio.getType() === "KPOP") {
+                try {
+                  await browser.runtime.sendMessage({
+                    cmd: "updateInfo",
+                  });
+                } catch (e) {
+                  // noop ... when popup is not open
+                }
+              }
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        };
+      },
+      heartbeat(intvalTime) {
+        clearInterval(radio.socket.KPOP.heartbeatIntervalTimerId);
+        radio.socket.KPOP.heartbeatIntervalTimerId = setInterval(() => {
+          radio.socket.KPOP.ws.send(JSON.stringify({ op: 9 }));
+        }, intvalTime);
+      },
     },
   },
 };
@@ -367,7 +480,7 @@ async function onCommand(cmd, arg) {
         cmd: "updateInfo",
       });
     } catch (e) {
-	    // noop ignore if popup is not open
+      // noop ignore if popup is not open
     }
   }, 500);
 }
@@ -390,7 +503,8 @@ async function onRuntimeMessage(data) {
     radio.enable();
   }
   //
-  radio.socket.init();
+  radio.socket.JPOP.init();
+  radio.socket.KPOP.init();
 
   // register listeners
   browser.storage.onChanged.addListener(onStorageChanged);

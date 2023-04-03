@@ -26,5 +26,5 @@
     "page": "options.html"
   },
   "permissions": ["*://*.listen.moe/*", "storage", "notifications", "cookies"],
-  "version": "1.1.24"
+  "version": "1.2.25"
 }

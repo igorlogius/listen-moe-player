@@ -1,375 +1,371 @@
-
 :root {
-	--jpop-color: #ff015b;
-	--jpop-color2: #c40447;
-	--kpop-color: #30a9ed;
-	--kpop-color2: #1587c9;
-	--bg: #262838;
+  --jpop-color: #ff015b;
+  --jpop-color2: #c40447;
+  --kpop-color: #30a9ed;
+  --kpop-color2: #1587c9;
+  --bg: #262838;
 }
 
 * {
-	text-rendering: optimizeLegibility;
+  text-rendering: optimizeLegibility;
 }
 
 html {
-	height: 145px;
-	-moz-osx-font-smoothing: grayscale;
-	-webkit-font-smoothing: antialiased;
-	overflow: hidden;
+  height: 145px;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
-html, body {
-	margin: 0;
-	padding: 0;
-	color: #c7ccd8;
-	font-size: 0.88rem;
-	border:1px solid gray;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  color: #c7ccd8;
+  font-size: 0.88rem;
+  border: 1px solid gray;
 }
 
 body {
-	display: flex;
-	height: 100%;
+  display: flex;
+  height: 100%;
 }
 
 a {
-	color: var(--jpop-color);
-	cursor: pointer;
-	text-decoration: none;
+  color: var(--jpop-color);
+  cursor: pointer;
+  text-decoration: none;
 }
 
 a:hover {
-	color: #fff !important;
+  color: #fff !important;
 }
 
 svg {
-	fill: rgb(199, 204, 216);
-	cursor: auto;
+  fill: rgb(199, 204, 216);
+  cursor: auto;
 }
 
 /* Background */
 
 #background {
-	position: fixed;
-	background-image: url('/jpop-bg.png');
-	background-size: cover;
-	top: -50px;
-	left: -50px;
-	height: calc(100% + 100px);
-	width: calc(100% + 100px);
-	filter: blur(10px);
-	-webkit-filter: blur(10px);
-	z-index: -1;
+  position: fixed;
+  background-image: url("/jpop-bg.png");
+  background-size: cover;
+  top: -50px;
+  left: -50px;
+  height: calc(100% + 100px);
+  width: calc(100% + 100px);
+  filter: blur(10px);
+  -webkit-filter: blur(10px);
+  z-index: -1;
 }
 
 /* Character */
 
 #character {
-	background-image: url('/kanna.gif');
-	background-size: cover;
-	height: 140px;
-	width: 110px;
-	bottom: 0px;
-	left: 0px;
-	/*cursor: pointer;*/
+  background-image: url("/kanna.gif");
+  background-size: cover;
+  height: 140px;
+  width: 110px;
+  bottom: 0px;
+  left: 0px;
+  /*cursor: pointer;*/
 }
 
 /* Container */
 
 #container {
-	display: flex;
-	justify-content: center;
-	position: relative;
-	height: 100%;
-	width: 375px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+  width: 375px;
 }
 
 /* Listeners */
 
 #listeners {
-	position: absolute;
-	top: 10px;
-	left: 5px;
+  position: absolute;
+  top: 10px;
+  left: 5px;
 }
 
 #listeners svg {
-	width: 15px;
-	transform: translate3d(0px, 2px, 0px);
-	margin-right: 2px;
+  width: 15px;
+  transform: translate3d(0px, 2px, 0px);
+  margin-right: 2px;
 }
 
-
 #numberProgress {
-	position: absolute;
-	top: 10px;
-	left: 50%;
+  position: absolute;
+  top: 10px;
+  left: 50%;
 }
 
 /* Player Container */
 
 #player-container {
-	text-align: center;
-	align-self: center;
-	width: 100%;
+  text-align: center;
+  align-self: center;
+  width: 100%;
 }
 
 #player-container svg {
-	cursor: pointer;
-	width: 20px;
+  cursor: pointer;
+  width: 20px;
 }
 
 #player-container svg:hover {
-	fill: var(--jpop-color);
+  fill: var(--jpop-color);
 }
 
 /* Player Info */
 
 #now-playing {
-	width: 80%;
-	margin: auto;
+  width: 80%;
+  margin: auto;
 }
 
 #now-playing-request,
 #now-playing-event {
-	display: none;
-	margin-top: 5px;
+  display: none;
+  margin-top: 5px;
 }
 
 #now-playing-text .artist,
 #now-playing-request a,
 #now-playing-event span {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 #now-playing-text {
-	white-space: nowrap;
-	overflow-x: hidden;
-	margin: auto 10px;
-	text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-x: hidden;
+  margin: auto 10px;
+  text-overflow: ellipsis;
 }
 
 #now-playing-text span {
-	position: relative;
+  position: relative;
 }
 
 /* Controls */
 
 #radio-controls {
-	margin: 10px 0px 10px 0px;
+  margin: 10px 0px 10px 0px;
 }
 
 #radio-controls > div {
-	display: inline-block;
+  display: inline-block;
 }
 
 /* Play/Pause */
 
 #radio-toggle svg.active :not(.icon-alt),
 #radio-toggle svg:not(.active) .icon-alt {
-	display: none;
+  display: none;
 }
 
 /* Volume Slider */
 
 #radio-volume {
-	margin: 0 3px;
+  margin: 0 3px;
 }
 
 #volume-slider {
-	background: none;
-	appearance: none;
-	-webkit-appearance: none;
-	border-radius: 5px;
-	vertical-align: super;
-	width: 200px;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 5px;
+  vertical-align: super;
+  width: 200px;
 }
 
 #volume-slider::-webkit-slider-runnable-track {
-	background: var(--bg);
-	background-image: linear-gradient(
-		to right,
-		var(--jpop-color) var(--volume, 0%),
-		transparent var(--volume, 0%)
-	);
-	border: none;
-	border-radius: 5px;
-	height: 6px;
+  background: var(--bg);
+  background-image: linear-gradient(
+    to right,
+    var(--jpop-color) var(--volume, 0%),
+    transparent var(--volume, 0%)
+  );
+  border: none;
+  border-radius: 5px;
+  height: 6px;
 }
 
 #volume-slider::-moz-range-track {
-	background: var(--bg);
-	background-image: linear-gradient(
-		to right,
-		var(--jpop-color) var(--volume, 0%),
-		transparent var(--volume, 0%)
-	);
-	border: none;
-	border-radius: 5px;
-	height: 6px;
+  background: var(--bg);
+  background-image: linear-gradient(
+    to right,
+    var(--jpop-color) var(--volume, 0%),
+    transparent var(--volume, 0%)
+  );
+  border: none;
+  border-radius: 5px;
+  height: 6px;
 }
 
 #volume-slider::-webkit-slider-thumb {
-	appearance: none;
-	-webkit-appearance: none;
-	background: var(--jpop-color2);
-	border-radius: 50%;
-	border: none;
-	height: 16px;
-	margin-top: -5px;
-	width: 16px;
-	box-shadow: 0.5px 0.5px 2px 1px rgba(0,0,0,.32);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--jpop-color2);
+  border-radius: 50%;
+  border: none;
+  height: 16px;
+  margin-top: -5px;
+  width: 16px;
+  box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.32);
 }
 
 #volume-slider::-moz-range-thumb {
-	background: var(--jpop-color2);
-	border-radius: 50%;
-	border: none;
-	height: 16px;
-	margin-top: -6px;
-	width: 16px;
-	box-shadow: 0.5px 0.5px 2px 1px rgba(0,0,0,.32);
+  background: var(--jpop-color2);
+  border-radius: 50%;
+  border: none;
+  height: 16px;
+  margin-top: -6px;
+  width: 16px;
+  box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.32);
 }
 
 #volume-slider:focus {
-	outline: none;
+  outline: none;
 }
 
 /* Favorite */
 
 #favorite-toggle svg.active :not(.icon-alt),
 #favorite-toggle svg:not(.active) .icon-alt {
-	display: none;
+  display: none;
 }
 
 /* Login */
 
 #favorite-toggle.login:before {
-	content: '';
-	position: absolute;
-	margin-top: -20px;
-    margin-left: 3px;
-	transform: rotate(45deg);
-	border-bottom: 13px solid var(--jpop-color2);
-	border-left: 13px solid transparent;
-	display: none;
+  content: "";
+  position: absolute;
+  margin-top: -20px;
+  margin-left: 3px;
+  transform: rotate(45deg);
+  border-bottom: 13px solid var(--jpop-color2);
+  border-left: 13px solid transparent;
+  display: none;
 }
 
 #favorite-toggle.login:after {
-	content: 'Click to Login';
-	position: absolute;
-	margin-top: -40px;
-    	margin-left: -55px;
-	background-color: var(--jpop-color2);
-	padding: 5px;
-	border-radius: 3px;
-	display: none;
+  content: "Click to Login";
+  position: absolute;
+  margin-top: -40px;
+  margin-left: -55px;
+  background-color: var(--jpop-color2);
+  padding: 5px;
+  border-radius: 3px;
+  display: none;
 }
 
 #favorite-toggle.login:hover:after,
 #favorite-toggle.login:hover:before {
-	display: initial;
+  display: initial;
 }
 
 /* Radio Type Toggle */
 
 #radio-type-toggle {
-	position: absolute;
-	left: 5px;
-	bottom: 5px;
-	cursor: pointer;
-	font-weight: 600;
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 /* Settings */
 
 #settings {
-	position: absolute;
-	bottom: 2px;
-	right: 5px;
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
 }
 
 #detach {
-	position: absolute;
-	top: 10px;
-	right: 5px;
+  position: absolute;
+  top: 10px;
+  right: 5px;
 }
 
 #detach svg {
-	cursor: pointer;
-	width: 15px;
+  cursor: pointer;
+  width: 15px;
 }
 
 #detach svg:hover {
-	fill: var(--jpop-color);
+  fill: var(--jpop-color);
 }
 
 #settings svg {
-	cursor: pointer;
-	width: 15px;
+  cursor: pointer;
+  width: 15px;
 }
 
 #settings svg:hover {
-	fill: var(--jpop-color);
+  fill: var(--jpop-color);
 }
 
 /* Kpop Styles */
 
 body.kpop #background {
-	position: absolute;
-	background: url(/kpop-bg.jpg);
-	background-position: 70% 90%;
+  position: absolute;
+  background: url(/kpop-bg.jpg);
+  background-position: 70% 90%;
 }
 
 body.kpop #character {
-	/*display: none;*/
+  /*display: none;*/
 }
 
 body.kpop #player-container svg:hover {
-	fill: var(--kpop-color);
+  fill: var(--kpop-color);
 }
 
 body.kpop a {
-	color: var(--kpop-color);
+  color: var(--kpop-color);
 }
 
 body.kpop #volume-slider::-webkit-slider-runnable-track {
-	background-image: linear-gradient(
-		to right,
-		var(--kpop-color) var(--volume, 0%),
-		transparent var(--volume, 0%)
-	);
+  background-image: linear-gradient(
+    to right,
+    var(--kpop-color) var(--volume, 0%),
+    transparent var(--volume, 0%)
+  );
 }
 
 body.kpop #volume-slider::-moz-range-track {
-	background-image: linear-gradient(
-		to right,
-		var(--kpop-color) var(--volume, 0%),
-		transparent var(--volume, 0%)
-	);
+  background-image: linear-gradient(
+    to right,
+    var(--kpop-color) var(--volume, 0%),
+    transparent var(--volume, 0%)
+  );
 }
 
 body.kpop #volume-slider::-webkit-slider-thumb {
-	background: var(--kpop-color2);
+  background: var(--kpop-color2);
 }
 
 body.kpop #volume-slider::-moz-range-thumb {
-	background: var(--kpop-color2);
+  background: var(--kpop-color2);
 }
 
 body.kpop #settings svg:hover {
-	fill: var(--kpop-color);
+  fill: var(--kpop-color);
 }
 
 body.kpop #detach svg:hover {
-	fill: var(--kpop-color);
+  fill: var(--kpop-color);
 }
-
 
 #songProgress {
-	display:block;
-	width: calc(98% - 110px);
-	position: fixed;
-	top: 0px;
-	left: calc(110px + 3px);
+  display: block;
+  width: calc(98% - 110px);
+  position: fixed;
+  top: 0px;
+  left: calc(110px + 3px);
 }
-
-
