@@ -34,10 +34,17 @@ let radio = {
   togglePlayback() {
     if (this.isPlaying()) {
       this.disable();
-      return false;
+    } else {
+      this.enable();
     }
-    this.enable();
-    return true;
+    try {
+      browser.runtime.sendMessage({
+        cmd: "updateInfo",
+      });
+    } catch (e) {
+      // noop ... when popup is not open
+    }
+    //return storage.radioType;
   },
   getType() {
     return storage.radioType;
@@ -58,7 +65,8 @@ let radio = {
     //return storage.radioType;
   },
   isPlaying() {
-    return !this.player.paused;
+    let tmp = this.player.getAttribute("src");
+    return typeof tmp === "string" && tmp.startsWith("https://");
   },
   setVol(volume) {
     if (Number.isInteger(volume) && (volume >= 0 || volume <= 100)) {
@@ -146,12 +154,17 @@ let radio = {
         console.error(json.errors);
         this.data.song.favorite = false;
       }
-
-      return this.data.song.favorite;
+      try {
+        browser.runtime.sendMessage({
+          cmd: "updateInfo",
+        });
+      } catch (e) {
+        // noop ... when popup is not open
+      }
+      //return storage.radioType;
     } catch (e) {
       console.error(e);
     }
-    return false;
   },
   async checkFavorite(id) {
     try {

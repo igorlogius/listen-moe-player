@@ -151,35 +151,33 @@ async function updateInfo() {
     document.createTextNode(getData.song.title || "No data")
   );
 
-  if(getData.event && getData.event.name) {
-
-	  nowPlayingRequestA.innerText = '';
-	  nowPlayingRequestA.setAttribute('href', '');
-	  nowPlayingRequest.style.display = 'none';
-
-	  nowPlayingEventSPAN.innerText = getData.event.name;
-	  nowPlayingEvent.style.display = 'block';
-
-  }else{
-	  nowPlayingEventSPAN.innerText = '';
-	  nowPlayingEvent.style.display = 'none';
-
-  if (
-    getData.requester &&
-    getData.requester.displayName &&
-    getData.requester.username
-  ) {
-    nowPlayingRequestA.innerText = getData.requester.displayName;
-    nowPlayingRequestA.setAttribute(
-      "href",
-      `https://listen.moe/u/${getData.requester.username}`
-    );
-    nowPlayingRequest.style.display = "block";
-  } else {
+  if (getData.event && getData.event.name) {
     nowPlayingRequestA.innerText = "";
     nowPlayingRequestA.setAttribute("href", "");
     nowPlayingRequest.style.display = "none";
-  }
+
+    nowPlayingEventSPAN.innerText = getData.event.name;
+    nowPlayingEvent.style.display = "block";
+  } else {
+    nowPlayingEventSPAN.innerText = "";
+    nowPlayingEvent.style.display = "none";
+
+    if (
+      getData.requester &&
+      getData.requester.displayName &&
+      getData.requester.username
+    ) {
+      nowPlayingRequestA.innerText = getData.requester.displayName;
+      nowPlayingRequestA.setAttribute(
+        "href",
+        `https://listen.moe/u/${getData.requester.username}`
+      );
+      nowPlayingRequest.style.display = "block";
+    } else {
+      nowPlayingRequestA.innerText = "";
+      nowPlayingRequestA.setAttribute("href", "");
+      nowPlayingRequest.style.display = "none";
+    }
   }
 
   // update favorit star
@@ -273,54 +271,19 @@ nowPlayingTextSPAN.addEventListener("click", function () {
   });
 
   // enable/disable player
-  radioToggleSVG.addEventListener("click", async () => {
-    const ret = await browser.runtime.sendMessage({ cmd: "togglePlayback" });
-    if (ret) {
-      radioToggleSVG.classList.add("active");
-    } else {
-      radioToggleSVG.classList.remove("active");
-    }
+  radioToggleSVG.addEventListener("click", () => {
+    browser.runtime.sendMessage({ cmd: "togglePlayback" });
   });
 
   // favorite button
   favoriteToggle.addEventListener("click", async () => {
-    const ret = await browser.runtime.sendMessage({ cmd: "toggleFavorite" });
-    if (ret) {
-      favoriteToggleSVG.classList.add("active");
-    } else {
-      favoriteToggleSVG.classList.remove("active");
-    }
+    browser.runtime.sendMessage({ cmd: "toggleFavorite" });
   });
 
   // toggle stream type
-  radioTypeToggle.addEventListener(
-    "click",
-    /*async*/ () => {
-      /*
-    albumurl = null;
-    character.style.background = `url(/kanna.gif) no-repeat center`;
-    character.style["background-size"] = "cover";
-    character.style["cursor"] = "auto";
-    duration = -1;
-    started = -1;
-    songProgress.max = 1;
-    songProgress.value = 0;
-    listenersSPAN.innerText = "N/A";
-    nowPlayingTextSPAN.innerHTML = "";
-    */
-      //const toggleType = await
-      browser.runtime.sendMessage({ cmd: "toggleType" });
-      /*
-    if (toggleType === "KPOP") {
-      this.innerText = "Switch to J-POP";
-      document.body.classList.add("kpop");
-    } else {
-      this.innerText = "Switch to K-POP";
-      document.body.classList.remove("kpop");
-    }
-    */
-    }
-  );
+  radioTypeToggle.addEventListener("click", () => {
+    browser.runtime.sendMessage({ cmd: "toggleType" });
+  });
 
   // open preferences
   settings.addEventListener("click", () => {
