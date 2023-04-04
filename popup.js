@@ -46,7 +46,8 @@ async function updateInfo() {
     getData.song.albums.length > 0 &&
     getData.song.albums[0].id &&
     typeof getData.song.albums[0].id === "number" &&
-    getData.song.albums[0].id > 0
+    getData.song.albums[0].id > 0 &&
+    isPlaying 
   ) {
     albumurl = `https://listen.moe/albums/${getData.song.albums[0].id}`;
   } else {
@@ -69,8 +70,14 @@ async function updateInfo() {
   // Sets Play/Pause depending on player status
   if (isPlaying) {
     radioToggleSVG.classList.add("active");
+    character.style.background = `url(/kanna.gif) no-repeat center`;
+    character.style["background-size"] = "cover";
+    character.style["cursor"] = "pointer";
   } else {
     radioToggleSVG.classList.remove("active");
+    character.style.background = `url(/kanna_sleeping.gif) no-repeat center`;
+    character.style["background-size"] = "cover";
+    character.style["cursor"] = "auto";
   }
 
   // set album cover
@@ -79,19 +86,17 @@ async function updateInfo() {
     typeof getData.song.coverData === "string" &&
     getData.song.coverData !== "null"
   ) {
-	  if(isPlaying){
+	  if(isPlaying) {
     character.style.background = `url(${getData.song.coverData}) no-repeat center`;
     character.style["background-size"] = "cover";
     character.style["cursor"] = "pointer";
-	  }else{
-    character.style.background = `url(/kanna_sleeping.gif) no-repeat center`;
-    character.style["background-size"] = "cover";
-    character.style["cursor"] = "auto";
 	  }
   } else {
+	  if(isPlaying) {
     character.style.background = `url(/kanna.gif) no-repeat center`;
     character.style["background-size"] = "cover";
     character.style["cursor"] = "auto";
+	  }
   }
 
   // set current song duration
