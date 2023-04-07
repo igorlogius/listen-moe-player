@@ -81,7 +81,9 @@ let radio = {
     link.setAttribute(
       "href",
       "data:text/plain;charset=utf-8,artists: " +
-        this.data.song.artists.map((a) => a.nameRomaji || a.name).join(", ")
+        this.getData()
+          .song.artists.map((a) => a.nameRomaji || a.name)
+          .join(", ")
     );
     setTimeout(() => {
       link.remove();
@@ -91,9 +93,11 @@ let radio = {
   showPlaying() {
     createNotification(
       "Now Playing",
-      this.data.song.title,
-      this.data.song.artists.map((a) => a.nameRomaji || a.name).join(", "),
-      this.data.song.coverData
+      this.getData().song.title,
+      this.getData()
+        .song.artists.map((a) => a.nameRomaji || a.name)
+        .join(", "),
+      this.getData().song.coverData
     );
   },
   getVol() {
@@ -126,7 +130,7 @@ let radio = {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       });
-      const { id } = this.data.song;
+      const { id } = this.getData().song;
 
       const res = await fetch("https://listen.moe/graphql", {
         method: "POST",
@@ -146,13 +150,13 @@ let radio = {
 
       const json = await res.json();
       if (json.data && json.data.favoriteSong && json.data.favoriteSong.id) {
-        this.data.song.favorite =
+        this.getData().song.favorite =
           json.data.favoriteSong.id == id
-            ? !this.data.song.favorite
-            : this.data.song.favorite;
+            ? !this.getData().song.favorite
+            : this.getData().song.favorite;
       } else if (json.errors) {
         console.error(json.errors);
-        this.data.song.favorite = false;
+        this.getData().song.favorite = false;
       }
       try {
         browser.runtime.sendMessage({
@@ -176,7 +180,7 @@ let radio = {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       });
-      const songs = [this.data.song.id];
+      const songs = [this.getData().song.id];
       const res = await fetch("https://listen.moe/graphql", {
         method: "POST",
         headers,

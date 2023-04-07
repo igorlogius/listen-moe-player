@@ -47,7 +47,7 @@ async function updateInfo() {
     getData.song.albums[0].id &&
     typeof getData.song.albums[0].id === "number" &&
     getData.song.albums[0].id > 0 &&
-    isPlaying 
+    isPlaying
   ) {
     albumurl = `https://listen.moe/albums/${getData.song.albums[0].id}`;
   } else {
@@ -86,17 +86,17 @@ async function updateInfo() {
     typeof getData.song.coverData === "string" &&
     getData.song.coverData !== "null"
   ) {
-	  if(isPlaying) {
-    character.style.background = `url(${getData.song.coverData}) no-repeat center`;
-    character.style["background-size"] = "cover";
-    character.style["cursor"] = "pointer";
-	  }
+    if (isPlaying) {
+      character.style.background = `url(${getData.song.coverData}) no-repeat center`;
+      character.style["background-size"] = "cover";
+      character.style["cursor"] = "pointer";
+    }
   } else {
-	  if(isPlaying) {
-    character.style.background = `url(/kanna.gif) no-repeat center`;
-    character.style["background-size"] = "cover";
-    character.style["cursor"] = "auto";
-	  }
+    if (isPlaying) {
+      character.style.background = `url(/kanna.gif) no-repeat center`;
+      character.style["background-size"] = "cover";
+      character.style["cursor"] = "auto";
+    }
   }
 
   // set current song duration
