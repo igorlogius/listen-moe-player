@@ -35,6 +35,8 @@ async function updateInfo() {
   const getType = await browser.runtime.sendMessage({ cmd: "getType" });
   const isPlaying = await browser.runtime.sendMessage({ cmd: "isPlaying" });
   const getData = await browser.runtime.sendMessage({ cmd: "getData" });
+
+  //console.debug('getData', getData);
   const getVol = await browser.runtime.sendMessage({ cmd: "getVol" });
   const getToken = await browser.runtime.sendMessage({ cmd: "getToken" });
 
@@ -337,6 +339,7 @@ nowPlayingTextSPAN.addEventListener("click", function () {
 
   // update songProgress
   setInterval(() => {
+    //console.debug('started', started, 'duration', duration);
     if (started > 0 && duration > 0) {
       let val = parseInt(Date.now() / 1000 - started);
       if (val < duration) {

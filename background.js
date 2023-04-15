@@ -214,6 +214,11 @@ let radio = {
       data: { lastSongID: -1 },
       reConnect() {
         clearInterval(radio.socket.JPOP.heartbeatIntervalTimerId);
+	radio.socket.JPOP.heartbeatIntervalTimerId = null;
+	if(radio.socket.JPOP.ws){
+		radio.socket.JPOP.ws.close();
+		radio.socket.JPOP.ws = null;
+	}
         setTimeout(radio.socket.JPOP.init, 5000);
       },
       init() {
@@ -234,6 +239,7 @@ let radio = {
             }
             if (response.op === 1) {
               radio.socket.JPOP.data = response.d;
+              //console.debug(response.d);
               radio.socket.JPOP.data.song.favorite = await radio.checkFavorite(
                 radio.socket.JPOP.data.song.id
               );
@@ -241,7 +247,9 @@ let radio = {
               if (
                 Array.isArray(radio.socket.JPOP.data.song.albums) &&
                 radio.socket.JPOP.data.song.albums.length > 0 &&
-                radio.socket.JPOP.data.song.albums[0].image
+                typeof radio.socket.JPOP.data.song.albums[0].image ===
+                  "string" &&
+                radio.socket.JPOP.data.song.albums[0].image.length > 0
               ) {
                 const url =
                   "https://cdn.listen.moe/covers/" +
@@ -252,10 +260,17 @@ let radio = {
                   credentials: "omit",
                   cors: "no-cors",
                 });
-                const cover = await res.blob();
-                radio.socket.JPOP.data.song.coverData = await blobToBase64(
-                  cover
-                );
+                if (
+                  (await res.ok) &&
+                  (await res.headers.get("content-type")).startsWith("image/")
+                ) {
+                  const cover = await res.blob();
+                  radio.socket.JPOP.data.song.coverData = await blobToBase64(
+                    cover
+                  );
+                } else {
+                  radio.socket.JPOP.data.song.coverData = null;
+                }
               } else {
                 radio.socket.JPOP.data.song.coverData = null;
               }
@@ -313,6 +328,11 @@ let radio = {
       data: { lastSongID: -1 },
       reConnect() {
         clearInterval(radio.socket.KPOP.heartbeatIntervalTimerId);
+	radio.socket.KPOP.heartbeatIntervalTimerId = null;
+	if(radio.socket.KPOP.ws){
+		radio.socket.KPOP.ws.close();
+		radio.socket.KPOP.ws = null;
+	}
         setTimeout(radio.socket.KPOP.init, 5000);
       },
       init() {
@@ -333,6 +353,7 @@ let radio = {
             }
             if (response.op === 1) {
               radio.socket.KPOP.data = response.d;
+              //console.debug(response.d);
               radio.socket.KPOP.data.song.favorite = await radio.checkFavorite(
                 radio.socket.KPOP.data.song.id
               );
@@ -340,7 +361,9 @@ let radio = {
               if (
                 Array.isArray(radio.socket.KPOP.data.song.albums) &&
                 radio.socket.KPOP.data.song.albums.length > 0 &&
-                radio.socket.KPOP.data.song.albums[0].image
+                typeof radio.socket.KPOP.data.song.albums[0].image ===
+                  "string" &&
+                radio.socket.KPOP.data.song.albums[0].image.length > 0
               ) {
                 const url =
                   "https://cdn.listen.moe/covers/" +
@@ -351,10 +374,17 @@ let radio = {
                   credentials: "omit",
                   cors: "no-cors",
                 });
-                const cover = await res.blob();
-                radio.socket.KPOP.data.song.coverData = await blobToBase64(
-                  cover
-                );
+                if (
+                  (await res.ok) &&
+                  (await res.headers.get("content-type")).startsWith("image/")
+                ) {
+                  const cover = await res.blob();
+                  radio.socket.KPOP.data.song.coverData = await blobToBase64(
+                    cover
+                  );
+                } else {
+                  radio.socket.KPOP.data.song.coverData = null;
+                }
               } else {
                 radio.socket.KPOP.data.song.coverData = null;
               }
